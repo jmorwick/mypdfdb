@@ -18,23 +18,13 @@ CREATE TABLE `full_text` (
 	PRIMARY KEY(file_id),
 	FOREIGN KEY(`file_id`) REFERENCES files(id)
 );
-CREATE TABLE `files` (
+CREATE TABLE "files" (
 	`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	`path`	TEXT,
-	`md5`	INTEGER
-);
-CREATE TABLE "derived_info" (
-	`file_id`	INTEGER NOT NULL,
-	`event_date`	TEXT,
-	`origin`	TEXT,
-	`recipient`	TEXT,
-	PRIMARY KEY(file_id),
-	FOREIGN KEY(`file_id`) REFERENCES files ( id )
-);
-CREATE TABLE "cached_info" (
-	`file_id`	INTEGER NOT NULL,
+	`path`	TEXT UNIQUE,
+	`md5`	INTEGER,
+	`date`	TEXT,
 	`pages`	INTEGER,
-	PRIMARY KEY(file_id),
-	FOREIGN KEY(`file_id`) REFERENCES files ( id )
+	`origin`	TEXT,
+	`recipient`	TEXT
 );
 COMMIT;
