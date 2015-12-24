@@ -99,7 +99,7 @@ function get_pdf_details($id) {
 	global $db;
 	if(is_numeric($id)) {
 		$res = $db->query("SELECT * FROM files WHERE id = '$id'");
-		return $res->fetchArray();
+		return $res->fetchArray(SQLITE3_ASSOC);
 	}
 	return false;
 }
@@ -109,7 +109,7 @@ function get_pdf_details($id) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function search_db() {
-	global $args;
+	global $args, $db;
 	
 	if(count($args) > 1) 
 		err_bad_input_format("exactly one url argument expected");
@@ -123,7 +123,11 @@ function search_db() {
 	
 	
 	header("Content-Type: application/json");
-	// TODO: query DB
+	$res = $db->query("SELECT * FROM files");
+	$pdfs = array();
+	while($row = $res->fetchArray(SQLITE3_ASSOC))
+		$pdfs[] = $row;
+	echo json_encode($pdfs);
 }
 
 ?>
