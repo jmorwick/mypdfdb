@@ -31,7 +31,7 @@ header("Access-Control-Allow-Orgin: *");
 header("Access-Control-Allow-Methods: *");
 
 $data_dir = getenv('DATA_DIR');
-// TODO: connect to DB
+$db = new SQLite3($data_dir.'/.mypdfdb');
 
 // extract arguments from request
 $args = explode('/', rtrim($_GET['request'], '/'));
@@ -76,28 +76,32 @@ function is_tag($str) {
 	return false;  // TODO: check for existence of tag in DB
 }
 
-function is_pdf_id($str) {
-	return is_numeric($str); // TODO: check db for existence of pdf w/ id
-}
-
 function retrieve_pdf() {
 	global $data_dir, $args;
 	
 	if(count($args) != 1)
 		err_bad_input_format("expected one argument in URL");
 	
-	if(!is_pdf_id($args[0]))
+	$details = get_pdf_details($args[0]);
+	if(!$details)
 		err_bad_input_data('file_id', $args[0], 'not a valid pdf id');
 	
-	$filename = get_pdf_details($args[0])['filename'];
+	$filename = $details['path'];
 	if(!$filename) err_bad_input_data('file_id', $args[0], "pdf file missing from database");
 	
 	header('Content-Type: application/pdf');
-	readfile($data_dir, $filename);
+	header("Content-Disposition:attachment;filename='$filename'");
+	readfile($data_dir.'/'.$filename);
+	exit();
 }
 
 function get_pdf_details($id) {
-	return array(); // TODO: get tuple from files table
+	global $db;
+	if(is_numeric($id)) {
+		$res = $db->query("SELECT * FROM files WHERE id = '$id'");
+		return $res->fetchArray();
+	}
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
