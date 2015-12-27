@@ -47,9 +47,13 @@ switch($method) {
 		switch($endpoint) {
 			case 'search':
 				search_db($args);
-				die();
+				exit();
 			case 'pdf':
 				retrieve_pdf($args);
+				exit();
+			case 'tags':
+				retrieve_tags();
+				exit();
 			default: err_no_such_service($endpoint);
 		}
 	case 'POST':
@@ -73,6 +77,12 @@ switch($method) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function prepare_pdf_record($record) {
+	global $db;
+	$record['tags'] = array();
+	$res = $db->query("SELECT tag FROM tags WHERE file_id = '".$record['id']."'");
+	while($row = $res->fetchArray(SQLITE3_ASSOC)) {
+		$record['tags'][] = $row['tag'];
+	}
 	return $record;
 }
 
@@ -83,25 +93,6 @@ function prepare_tag_record($record) {
 function is_tag($str) {
 	global $db;
 	return $db->querySingle("SELECT tag FROM tag_info WHERE tag='$str'");
-}
-
-function retrieve_pdf() {
-	global $data_dir, $args;
-	
-	if(count($args) != 1)
-		err_bad_input_format("expected one argument in URL");
-	
-	$details = get_pdf_details($args[0]);
-	if(!$details)
-		err_bad_input_data('file_id', $args[0], 'not a valid pdf id');
-	
-	$filename = $details['path'];
-	if(!$filename) err_bad_input_data('file_id', $args[0], "pdf file missing from database");
-	
-	header('Content-Type: application/pdf');
-	header("Content-Disposition:attachment;filename='$filename'");
-	readfile($data_dir.'/'.$filename);
-	exit();
 }
 
 function get_pdf_details($id) {
@@ -131,12 +122,13 @@ function search_db($args) {
 		
 	}
 	
-	// find all parent tags
+	// find all child tags
 	while(count($tag_queue)) {
 		$tag = array_shift($tag_queue);
 		$tags[] = $tag;
-		if($parent = $db->querySingle("SELECT parent FROM tag_info WHERE tag = '$tag' AND parent IS NOT NULL")) {
-			$tag_queue[] = $parent;
+		$res = $db->query("SELECT tag FROM tag_info WHERE parent = '$tag'");
+		while($row = $res->fetchArray(SQLITE3_ASSOC)) {
+			$tag_queue[] = $row['tag'];
 		}
 	}
 	
@@ -154,6 +146,36 @@ function search_db($args) {
 	while($row = $res->fetchArray(SQLITE3_ASSOC))
 		$pdfs[] = prepare_pdf_record($row);
 	echo json_encode($pdfs);
+}
+
+
+function retrieve_pdf() {
+	global $data_dir, $args;
+	
+	if(count($args) != 1)
+		err_bad_input_format("expected one argument in URL");
+	
+	$details = get_pdf_details($args[0]);
+	if(!$details)
+		err_bad_input_data('file_id', $args[0], 'not a valid pdf id');
+	
+	$filename = $details['path'];
+	if(!$filename) err_bad_input_data('file_id', $args[0], "pdf file missing from database");
+	
+	header('Content-Type: application/pdf');
+	header("Content-Disposition:attachment;filename='$filename'");
+	readfile($data_dir.'/'.$filename);
+	exit();
+}
+
+function retrieve_tags() {
+	global $db;
+	header("Content-Type: application/json");
+	$tags = array();
+	$res = $db->query("SELECT * FROM tag_info");
+	while($row = $res->fetchArray(SQLITE3_ASSOC))
+		$tags[] = prepare_pdf_record($row);
+	echo json_encode($tags);
 }
 
 ?>
