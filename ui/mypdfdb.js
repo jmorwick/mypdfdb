@@ -54,6 +54,7 @@ function loadTags() {
           }
         });
       }
+      $(".tagTree").bonsai();
     }
   });
 }
