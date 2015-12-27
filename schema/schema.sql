@@ -7,8 +7,7 @@ CREATE TABLE "tags" (
 );
 CREATE TABLE "tag_info" (
 	`tag`	TEXT NOT NULL,
-	`parent`	TEXT NOT NULL,
-	`category`	INTEGER NOT NULL DEFAULT 0,
+	`parent`	TEXT,
 	`description`	TEXT,
 	PRIMARY KEY(tag)
 );

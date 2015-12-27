@@ -46,7 +46,7 @@ switch($method) {
 	case 'GET':
 		switch($endpoint) {
 			case 'search':
-				search_db($args, $_GET);
+				search_db($args);
 				die();
 			case 'pdf':
 				retrieve_pdf($args);
@@ -72,8 +72,17 @@ switch($method) {
 // helper functions
 ////////////////////////////////////////////////////////////////////////////////
 
+function prepare_pdf_record($record) {
+	return $record;
+}
+
+function prepare_tag_record($record) {
+	return $record;
+}
+
 function is_tag($str) {
-	return false;  // TODO: check for existence of tag in DB
+	global $db;
+	return $db->querySingle("SELECT tag FROM tag_info WHERE tag='$str'");
 }
 
 function retrieve_pdf() {
@@ -108,25 +117,42 @@ function get_pdf_details($id) {
 // servicing functions
 ////////////////////////////////////////////////////////////////////////////////
 
-function search_db() {
-	global $args, $db;
+function search_db($args) {
+	global $db;
 	
-	if(count($args) > 1) 
-		err_bad_input_format("exactly one url argument expected");
+	$tag_queue = array();
+	$tags = array();
 	
-	// validate tag argument
-	if(count($args) == 1 || isset($extra_args['tag'])) { // validate tag
-		$tag = isset($args['tag']) ? $extra_args['tag'] : $args[0];
+	// validate tag arguments
+	foreach($args as $tag) {
 		if(!is_tag($tag)) 
 			err_bad_input_data('tag', $tag, "not a valid tag");
+		$tag_queue[] = $tag;
+		
 	}
 	
+	// find all parent tags
+	while(count($tag_queue)) {
+		$tag = array_shift($tag_queue);
+		$tags[] = $tag;
+		if($parent = $db->querySingle("SELECT parent FROM tag_info WHERE tag = '$tag' AND parent IS NOT NULL")) {
+			$tag_queue[] = $parent;
+		}
+	}
 	
 	header("Content-Type: application/json");
-	$res = $db->query("SELECT * FROM files");
+	if($tags) {
+		$queries = array();
+		foreach($tags as $tag) {
+			$queries[] = "SELECT files.* FROM files, tags WHERE tags.file_id = files.id AND tags.tag = '$tag'";
+		}
+		$res = $db->query(implode(" UNION " , $queries));
+	} else {
+		$res = $db->query("SELECT files.* FROM files");
+	}
 	$pdfs = array();
 	while($row = $res->fetchArray(SQLITE3_ASSOC))
-		$pdfs[] = $row;
+		$pdfs[] = prepare_pdf_record($row);
 	echo json_encode($pdfs);
 }
 
