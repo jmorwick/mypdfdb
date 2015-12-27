@@ -34,6 +34,30 @@ function loadRecords() {
   });
 }
 
+function loadTags() {
+  $.ajax({
+    url: 'api/tags',
+    success: function(tags) {
+      var used_tags = [];
+      $(".tagTree").empty();
+      while(used_tags.length < tags.length) {
+        tags.forEach(function (tag_record) {
+          if(used_tags.indexOf(tag_record.tag) > -1) {
+          } else if(tag_record.parent != null) {
+            if(used_tags.indexOf(tag_record.parent) > -1) {
+              $("[data-tag="+tag_record.parent+"]").append("<li>"+tag_record.tag+"<ul data-tag='"+tag_record.tag+"'></ul></li>");
+              used_tags.push(tag_record.tag);
+            }
+          } else {
+            $(".tagTree").append("<li>"+tag_record.tag+"<ul data-tag='"+tag_record.tag+"'></ul></li>");
+            used_tags.push(tag_record.tag);
+          }
+        });
+      }
+    }
+  });
+}
+
 
 $(function() { 
   $.dynatableSetup({
@@ -62,4 +86,5 @@ $(function() {
   });
 		
   loadRecords();
+  loadTags();
 });

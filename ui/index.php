@@ -24,12 +24,8 @@
 </div>
 
 <div class="optionsbar">
-	<div class="alltagstab">
-	</div>
-	<div class="noncategoriestagstab">
-	</div>
-	<div class="categoriestab">
-	</div>
+	<ul class="tagTree">
+	</ul>
 </div>
 
 <table id="pdfInfoTableContainer">
