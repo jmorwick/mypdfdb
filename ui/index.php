@@ -26,6 +26,8 @@
 <div class="optionsbar">
 	<ul class="tagTree">
 	</ul>
+	<a class="addTag button">add</a>
+	<a class="editTag button">edit</a>
 </div>
 
 <table id="pdfInfoTableContainer">
@@ -39,6 +41,9 @@
 		<th>view</th>
 	</thead>
 </table>
+	<a class="associateTag button">show records with selected tags</a>
+	<a class="associateTag button">tag selected records</a>
+	<a class="disassociateTag button">untag selected records</a>
 
 </body>
 

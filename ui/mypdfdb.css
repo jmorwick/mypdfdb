@@ -1,4 +1,4 @@
-.viewButton {
+.button {
    border-top: 1px solid #631b16;
    background: #e31009;
    background: -webkit-gradient(linear, left top, left bottom, from(#d94d0d), to(#e31009));
@@ -20,12 +20,12 @@
    text-decoration: none;
    vertical-align: middle;
    }
-.viewButton:hover {
+.button:hover {
    border-top-color: #28597a;
    background: #28597a;
    color: #ccc;
    }
-.viewButton:active {
+.button:active {
    border-top-color: #1b435e;
    background: #1b435e;
    }

@@ -82,7 +82,7 @@ $(function() {
       pages: function(record) { return record.pages; },          
       origin: function(record) { return "<span class='originfield'>"+record.origin+"</span>";},
       recipient: function(record) { return "<span class='recipientfield'>"+record.recipient+"</span>";},
-      view: function(record) { return "<a class='viewButton' href='api/pdf/"+record.id+"' target='_blank'>view</a>"; }
+      view: function(record) { return "<a class='viewButton button' href='api/pdf/"+record.id+"' target='_blank'>view</a>"; }
     }
   });
 		
