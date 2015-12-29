@@ -62,6 +62,12 @@ switch($method) {
 		}
 	case 'PUT':
 		switch($endpoint) {
+			case 'tag':
+				associate_tags($args);
+				exit();
+			case 'untag':
+				disassociate_tags($args);
+				exit();
 			default: err_no_such_service($endpoint);
 		}
 	case 'DELETE':
@@ -177,6 +183,50 @@ function retrieve_tags() {
 	while($row = $res->fetchArray(SQLITE3_ASSOC))
 		$tags[] = prepare_pdf_record($row);
 	echo json_encode($tags);
+}
+
+function associate_tags($args) {
+	global $db;
+	
+	if(count($args) != 2)
+		err_bad_input_format("expected two argument in URL (dash-separated list of tag ids followed by dash-separated list of pdf ids)");
+	$tags = explode('-',$args[0]);
+	$pdfs = explode('-',$args[1]);
+	foreach($tags as $tag) 
+	  if(!is_tag($tag)) 
+	    err_bad_input_data('tagid', $tag, 'not a valid tag id');
+	foreach($pdfs as $pdf) 
+	  if(!get_pdf_details($pdf)) 
+	    err_bad_input_data('pdfid', $pdf, 'not a valid pdf id');
+    
+    	foreach($pdfs as $pdf) {
+    	  foreach($tags as $tag) {
+    	    if(!$db->querySingle("SELECT * FROM tags WHERE file_id = '$pdf' AND tag = '$tag'")) {
+    	      $db->exec("INSERT INTO tags VALUES ('$pdf', '$tag')");
+    	    }
+    	  }
+    	}
+}
+
+function disassociate_tags($args) {
+	global $db;
+	
+	if(count($args) != 2)
+		err_bad_input_format("expected two argument in URL (dash-separated list of tag ids followed by dash-separated list of pdf ids)");
+	$tags = explode('-',$args[0]);
+	$pdfs = explode('-',$args[1]);
+	foreach($tags as $tag) 
+	  if(!is_tag($tag)) 
+	    err_bad_input_data('tagid', $tag, 'not a valid tag id');
+	foreach($pdfs as $pdf) 
+	  if(!get_pdf_details($pdf)) 
+	    err_bad_input_data('pdfid', $pdf, 'not a valid pdf id');
+    
+    	foreach($pdfs as $pdf) {
+    	  foreach($tags as $tag) {
+    	    $db->exec("DELETE FROM tags WHERE file_id = '$pdf' AND tag = '$tag'");
+    	  }
+    	}
 }
 
 ?>

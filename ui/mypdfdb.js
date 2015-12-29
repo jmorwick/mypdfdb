@@ -1,5 +1,5 @@
-var dynatable = null;
 var selectedRows = [];
+var mainTable = null;
 
 function mypdfdbRowWriter(rowIndex, record, columns, cellWriter) {
   var tr = '';
@@ -69,7 +69,7 @@ function defaultSort(a, b, attr, direction) {
 
 
 $(function() { 
-    var table = $('#pdfInfoTableContainer').DataTable( {
+    mainTable = $('#pdfInfoTableContainer').DataTable( {
         "ajax": 'api/search/',
         "columns": [
             { "data": "id" },
@@ -100,16 +100,38 @@ $(function() {
     
  
     $('.associateTags').click( function () { 
-      selectedIds = table.rows( { selected: true } ).ids()
+      selectedIds = mainTable.rows( { selected: true } ).ids()
         .map(function(row){return row.substring(4);});
-      console.log(selectedIds);
+      console.log(selectedIds.join('-'));
+      selectedTags = $("input[type=checkbox]:checked").siblings('ul')
+        .map(function(){return $(this).attr("data-tag");}).get();
+      console.log(selectedTags.join('-'));
       
-    } );
+      $.ajax({
+        url: 'api/tag/'+selectedTags.join('-')+'/'+selectedIds.join('-'),
+        type: 'PUT',
+        success: function(data) {
+          // TODO: refresh table
+        }
+      }); 
+    });
+
     $('.disassociateTags').click( function () { 
-      selectedIds = table.rows( { selected: true } ).ids()
+      selectedIds = mainTable.rows( { selected: true } ).ids()
         .map(function(row){return row.substring(4);});
-      console.log(selectedIds);
-    } );
+      console.log(selectedIds.join('-'));
+      selectedTags = $("input[type=checkbox]:checked").siblings('ul')
+        .map(function(){return $(this).attr("data-tag");}).get();
+      console.log(selectedTags.join('-'));
+      
+      $.ajax({
+        url: 'api/untag/'+selectedTags.join('-')+'/'+selectedIds.join('-'),
+        type: 'PUT',
+        success: function(data) {
+          // TODO: refresh table
+        }
+      }); 
+    });
     
     loadTags();
 });
