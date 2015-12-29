@@ -83,6 +83,7 @@ function prepare_pdf_record($record) {
 	while($row = $res->fetchArray(SQLITE3_ASSOC)) {
 		$record['tags'][] = $row['tag'];
 	}
+	$record['DT_RowId'] = 'row_'.$record['id'];
 	return $record;
 }
 
@@ -145,7 +146,7 @@ function search_db($args) {
 	$pdfs = array();
 	while($row = $res->fetchArray(SQLITE3_ASSOC))
 		$pdfs[] = prepare_pdf_record($row);
-	echo json_encode($pdfs);
+	echo json_encode(array( 'data' => $pdfs));
 }
 
 

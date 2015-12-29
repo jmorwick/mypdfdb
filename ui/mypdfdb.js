@@ -1,37 +1,34 @@
-function defaultCellWriter(column, record) {
-    var html = column.attributeWriter(record),
-        td = '<td';
+var dynatable = null;
+var selectedRows = [];
 
-    if (column.hidden || column.textAlign) {
-      td += ' style="';
+function mypdfdbRowWriter(rowIndex, record, columns, cellWriter) {
+  var tr = '';
 
-      // keep cells for hidden column headers hidden
-      if (column.hidden) {
-        td += 'display: none;';
-      }
-
-      // keep cells aligned as their column headers are aligned
-      if (column.textAlign) {
-        td += 'text-align: ' + column.textAlign + ';';
-      }
-
-      td += '"';
-    }
-
-    return td + '>' + html + '</td>';
+  // grab the record's attribute for each column
+  for (var i = 0, len = columns.length; i < len; i++) {
+    tr += cellWriter(columns[i], record);
+  }
+  var selected = '';
+  if(selectedRows.indexOf(record.id) > -1) {
+    selected = ' class="selectedRow" ';
+  }
+  return '<tr onClick="selectRow('+record.id+')" data-id="'+record.id+'"'+selected+'>' + tr + '</tr>';
 };
 
-function loadRecords() {
-  $.ajax({
-    url: 'api/search',
-    success: function(data){
-      $('#pdfInfoTableContainer').dynatable({
-        dataset: {
-          records: data
-        }
-      });
-    }
-  });
+function selectRow(id) {
+  var tr = $("[data-id="+id+"]");alert(selectedRows);
+  if(selectedRows.indexOf(id) == -1) {
+    selectedRows.push(id); 
+    tr.addClass('selectedRow');
+  }
+}
+
+function unselectRow(event) {
+  var tr = $(event.target.closest('tr'));
+  if(selectedRows.indexOf(tr.attr('data-id')) == -1) {
+    selectedRows.push(tr.attr('data-id'));
+    tr.addClass('selectedRow');
+  }
 }
 
 function loadTags() {
@@ -45,7 +42,10 @@ function loadTags() {
           if(used_tags.indexOf(tag_record.tag) > -1) {
           } else if(tag_record.parent != null) {
             if(used_tags.indexOf(tag_record.parent) > -1) {
-              $("[data-tag="+tag_record.parent+"]").append("<li>"+tag_record.tag+"<ul data-tag='"+tag_record.tag+"'></ul></li>");
+              $("[data-tag="+tag_record.parent+"]")
+                .append("<li>"+
+                	tag_record.tag+"<ul data-tag='"+tag_record.tag+
+                	"'></ul></li>");
               used_tags.push(tag_record.tag);
             }
           } else {
@@ -54,38 +54,62 @@ function loadTags() {
           }
         });
       }
-      $(".tagTree").bonsai();
+      $(".tagTree").bonsai({
+        createInputs: 'checkbox',
+        addSelectAll: 'true'
+      });
     }
   });
 }
 
+function defaultSort(a, b, attr, direction) {
+  return (direction > 0 ? 1 : -1)(a.id-b.id);
+};
+
+
 
 $(function() { 
-  $.dynatableSetup({
-    writers: {
-      tags: function(record) { 
-        ret = "<ul class='taglist'>";
-        if(typeof record.tags != 'undefined') {
-          record.tags.forEach(function (tag) { ret += "<div class='tag'>"+tag+"</div>"; });
-        }
-      	ret += "</ul>"; 
-      	return ret;
-      },
-      title: function(record) {
-        if(record.title != null) {
-          return "<span class='titlefield'>"+record.title+"</span>";
-        } else {
-          return "<span class='titlefield'><span class='defaultvalue'>"+record.path+"</span></span>";
-        }
-      },
-      date: function(record) { return "<span class='datefield'>"+record.date+"</span>";},
-      pages: function(record) { return record.pages; },          
-      origin: function(record) { return "<span class='originfield'>"+record.origin+"</span>";},
-      recipient: function(record) { return "<span class='recipientfield'>"+record.recipient+"</span>";},
-      view: function(record) { return "<a class='viewButton button' href='api/pdf/"+record.id+"' target='_blank'>view</a>"; }
-    }
-  });
-		
-  loadRecords();
-  loadTags();
+    var table = $('#pdfInfoTableContainer').DataTable( {
+        "ajax": 'api/search/',
+        "columns": [
+            { "data": "id" },
+            { "data": "tags" },
+            { "data": "title" },
+            { "data": "date" },
+            { "data": "pages" },
+            { "data": "origin" },
+            { "data": "recipient" }
+        ],
+        "columnDefs": [
+            {
+                "render": function ( data, type, row ) {
+                    return ' ('+ row['id']+')';
+                },
+                "targets": 6
+            },
+            {
+                "render": function ( data, type, row ) {
+                    return row['title'] == null ? row['path'] : row['title'];
+                },
+                "targets": 2
+            },
+            { "visible": false,  "targets": [ 0 ] }
+        ],
+        "select": true
+    } );
+    
+ 
+    $('.associateTags').click( function () { 
+      selectedIds = table.rows( { selected: true } ).ids()
+        .map(function(row){return row.substring(4);});
+      console.log(selectedIds);
+      
+    } );
+    $('.disassociateTags').click( function () { 
+      selectedIds = table.rows( { selected: true } ).ids()
+        .map(function(row){return row.substring(4);});
+      console.log(selectedIds);
+    } );
+    
+    loadTags();
 });
