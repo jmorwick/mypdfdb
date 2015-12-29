@@ -117,6 +117,13 @@ $(function() {
         $("[data-tag="+tag+']').siblings('input').click();
       });
     });
+    
+    $('.searchWithTags').click( function () { 
+      selectedTags = $("input[type=checkbox]:checked").siblings('ul')
+        .map(function(){return $(this).attr("data-tag");}).get();
+      mainTable.ajax.url('api/search/'+selectedTags.join('/'));
+      mainTable.ajax.reload();
+    });
  
     $('.associateTags').click( function () { 
       selectedIds = mainTable.rows( { selected: true } ).ids()
@@ -128,7 +135,7 @@ $(function() {
         url: 'api/tag/'+selectedTags.join('-')+'/'+selectedIds.join('-'),
         type: 'PUT',
         success: function(data) {
-          // TODO: refresh table
+          mainTable.ajax.reload();
         }
       }); 
     });
@@ -143,7 +150,7 @@ $(function() {
         url: 'api/untag/'+selectedTags.join('-')+'/'+selectedIds.join('-'),
         type: 'PUT',
         success: function(data) {
-          // TODO: refresh table
+          mainTable.ajax.reload();
         }
       }); 
     });
