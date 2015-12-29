@@ -98,14 +98,31 @@ $(function() {
         "select": true
     } );
     
+    
+    mainTable.on( 'select', function ( e, dt, type, indexes ) {
+      var tags = [];
+      // find tags in selected rows
+      mainTable.rows( { selected: true } ).data()
+        .each(function(row){ 
+      	  row.tags.forEach(function(tag) {
+            if(tags.indexOf(tag) == -1) tags.push(tag);
+          });
+        });
+        
+      // unselect all tags
+      $("input[type=checkbox]:checked").attr('checked', false);
+      
+      // select only the tags in the selected rows
+      tags.forEach(function(tag) {
+        $("[data-tag="+tag+']').siblings('input').click();
+      });
+    });
  
     $('.associateTags').click( function () { 
       selectedIds = mainTable.rows( { selected: true } ).ids()
         .map(function(row){return row.substring(4);});
-      console.log(selectedIds.join('-'));
       selectedTags = $("input[type=checkbox]:checked").siblings('ul')
         .map(function(){return $(this).attr("data-tag");}).get();
-      console.log(selectedTags.join('-'));
       
       $.ajax({
         url: 'api/tag/'+selectedTags.join('-')+'/'+selectedIds.join('-'),
@@ -119,10 +136,8 @@ $(function() {
     $('.disassociateTags').click( function () { 
       selectedIds = mainTable.rows( { selected: true } ).ids()
         .map(function(row){return row.substring(4);});
-      console.log(selectedIds.join('-'));
       selectedTags = $("input[type=checkbox]:checked").siblings('ul')
         .map(function(){return $(this).attr("data-tag");}).get();
-      console.log(selectedTags.join('-'));
       
       $.ajax({
         url: 'api/untag/'+selectedTags.join('-')+'/'+selectedIds.join('-'),
