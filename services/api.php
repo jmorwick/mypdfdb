@@ -65,6 +65,9 @@ switch($method) {
 			case 'tag':
 				associate_tags($args);
 				exit();
+			case 'createtag':
+				create_tag($args);
+				exit();
 			case 'untag':
 				disassociate_tags($args);
 				exit();
@@ -72,6 +75,9 @@ switch($method) {
 		}
 	case 'DELETE':
 		switch($endpoint) {
+			case 'deletetag':
+				delete_tag($args);
+				exit();
 			default: err_no_such_service($endpoint);
 		}
 	default: err_no_such_service($endpoint);
@@ -227,6 +233,46 @@ function disassociate_tags($args) {
     	    $db->exec("DELETE FROM tags WHERE file_id = '$pdf' AND tag = '$tag'");
     	  }
     	}
+}
+
+function create_tag($args) {
+	global $db;
+	
+	if(count($args) == 0 || count($args) > 3)
+		err_bad_input_format("expected 1-3 arguments in URL (tag, parent tag, description)");
+	
+	if(is_tag($args[0]))
+		err_bad_input_data('tag', $tag, 'already exists');
+	
+	// TODO: validate tag format (a-z or _ only)
+	
+	$db->exec("INSERT INTO tag_info VALUES (".$args[0].",".
+		(count($args) > 1 ? "'".$args[1]."'" : "NULL").",".
+		(count($args) > 2 ? "'".$args[2]."'" : "NULL").")");
+}
+
+
+function delete_tags($args) {
+	global $db;
+	
+	if(count($args) == 0)
+		err_bad_input_format("expected at least 1 argument in URL (one or more tags)");
+	
+	// validate tag arguments
+	foreach($args as $tag) {
+		if(!is_tag($tag)) 
+			err_bad_input_data('tag', $tag, "not a valid tag");		
+	}
+	
+	// delete tags
+	foreach($args as $tag) {	
+		// TODO: start transaction
+		// TODO: update all tagged pdfs to have parent tag (or null)
+		// TODO: update all child tag to have this tag's parent (or null)
+		// TODO: delete tag
+		// TODO: commit
+	}
+	
 }
 
 ?>

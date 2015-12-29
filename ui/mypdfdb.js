@@ -155,5 +155,27 @@ $(function() {
       }); 
     });
     
+    $(".addTagDialog").dialog({
+      autoOpen: false
+    });
+    
+    $('.addTag').click( function () { 
+      $(".addTagDialog").dialog("open");
+    });
+    
+    $('.deleteTag').click( function () { 
+      selectedTags = $("input[type=checkbox]:checked").siblings('ul')
+        .map(function(){return $(this).attr("data-tag");}).get();
+      alert("TODO: confirm and then delete selected tags: "+ selectedTags);
+    });
+    
+    $('.addtagdialogsubmit').click( function () {  
+      alert("TODO: validate and add tag");
+    });
+    
+    $('.addtagdialogsubmit').click( function () { 
+      alert("TODO: close add tag dialog");
+    });
+    
     loadTags();
 });

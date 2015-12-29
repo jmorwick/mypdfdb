@@ -18,6 +18,19 @@
 
 <body>
 
+<dialog class="addTagDialog" title="Add new tag">
+  <label>Tag Name:</label>
+  <input name="tag" type="text">
+  <label>Parent Tag Name:</label>
+  <select name="parent">
+    <option selected>*none*</option>
+  <select>
+  <label>Description:</label>
+  <input name="description" type="text">
+  <a class="addtagdialogsubmit button">add tag</a>
+  <a class="addtagdialogsubmit button">cancel</a>
+</dialog>
+
 <header>
 	<h1>myPDF DB</h1>
 </header>
@@ -30,6 +43,7 @@
 	</ul>
 	<a class="addTag button">add</a>
 	<a class="editTag button">edit</a>
+	<a class="removeTag button">delete</a>
 </div>
 
 <table id="pdfInfoTableContainer" class="display" cellspacing="0" width="100%">
