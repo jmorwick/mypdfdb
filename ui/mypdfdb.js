@@ -186,7 +186,7 @@ $(function() {
         .map(function(){return $(this).attr("data-tag");}).get();
       if(selectedTags.length > 0) {
           $('<div></div>').appendTo('body')
-            .html('Are you sure you want to delete the tags: '+selectedTags+'? ' + 
+            .html('Are you sure you want to delete the tags: '+styleTags(selectedTags)+'? ' + 
               'This will also alter any records using this tag and cannot be (easily) undone.')
             .dialog({
               modal: true,
