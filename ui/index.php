@@ -45,7 +45,7 @@
 	</ul>
 	<a class="addTag button">add</a>
 	<a class="editTag button">edit</a>
-	<a class="removeTag button">delete</a>
+	<a class="deleteTags button">delete</a>
 </div>
 
 <table id="pdfInfoTableContainer" class="display" cellspacing="0" width="100%">

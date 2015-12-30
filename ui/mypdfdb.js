@@ -159,10 +159,32 @@ $(function() {
       $("#addTagDialog").css("display", "block");
     });
     
-    $('.deleteTag').click( function () { 
+    $('.deleteTags').click( function () { 
       selectedTags = $("input[type=checkbox]:checked").siblings('ul')
         .map(function(){return $(this).attr("data-tag");}).get();
-      alert("TODO: confirm and then delete selected tags: "+ selectedTags);
+        $('<div></div>').appendTo('body')
+    .html('Are you sure you want to delete the tags: '+selectedTags+'? ' + 
+          'This will also alter any records using this tag and cannot be (easily) undone.')
+    .dialog({
+    modal: true,
+    title: 'remove tag?',
+    zIndex: 1000000,
+    autoOpen: true,
+    width: 'auto',
+    resizable: false,
+    buttons: {
+        Yes: function () {
+            alert("TODO: delete record");
+            $(this).dialog("close");
+        },
+        Cancel: function () {
+            $(this).dialog("close");
+        }
+    },
+    close: function (event, ui) {
+        $(this).remove();
+    }
+});
     });
     
     $('.addTagDialogSubmit').click( function () {  
