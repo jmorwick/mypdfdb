@@ -18,17 +18,19 @@
 
 <body>
 
-<dialog class="addTagDialog" title="Add new tag">
+<dialog id="addTagDialog" title="Add new tag">
+  <form>
   <label>Tag Name:</label>
   <input name="tag" type="text">
   <label>Parent Tag Name:</label>
   <select name="parent">
-    <option selected>*none*</option>
+    <option selected value="">none</option>
   <select>
   <label>Description:</label>
   <input name="description" type="text">
-  <a class="addtagdialogsubmit button">add tag</a>
-  <a class="addtagdialogsubmit button">cancel</a>
+  </form>
+  <a class="addTagDialogSubmit button">add tag</a>
+  <a class="addTagDialogCancel button">cancel</a>
 </dialog>
 
 <header>

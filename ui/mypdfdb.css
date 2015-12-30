@@ -33,3 +33,7 @@
 .selectedRow {
   background: #ff0000;
 }
+
+.dialog {
+  display: none;
+}

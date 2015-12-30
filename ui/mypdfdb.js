@@ -155,12 +155,8 @@ $(function() {
       }); 
     });
     
-    $(".addTagDialog").dialog({
-      autoOpen: false
-    });
-    
     $('.addTag').click( function () { 
-      $(".addTagDialog").dialog("open");
+      $("#addTagDialog").css("display", "block");
     });
     
     $('.deleteTag').click( function () { 
@@ -169,12 +165,12 @@ $(function() {
       alert("TODO: confirm and then delete selected tags: "+ selectedTags);
     });
     
-    $('.addtagdialogsubmit').click( function () {  
+    $('.addTagDialogSubmit').click( function () {  
       alert("TODO: validate and add tag");
     });
     
-    $('.addtagdialogsubmit').click( function () { 
-      alert("TODO: close add tag dialog");
+    $('.addTagDialogCancel').click( function () { 
+      $('#addTagDialog').hide();
     });
     
     loadTags();
