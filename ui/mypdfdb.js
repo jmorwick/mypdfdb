@@ -19,31 +19,53 @@ function loadTags() {
     url: 'api/tags',
     success: function(tags) {
       var used_tags = [];
-      $(".tagTree").empty();
+      var tagTree = $(".tagTree");
+      var tagSelector = $("#addTagDialog select[name='parent']");
+      
+      tagTree.empty();
+      tagSelector.empty();
+      tagSelector.append($("<option selected></option>")
+        .attr("value",'')
+        .text("*none")); 
+      
       while(used_tags.length < tags.length) {
         tags.forEach(function (tag_record) {
-          if(used_tags.indexOf(tag_record.tag) > -1) {
+          var rawTag = ''+tag_record.tag;
+          var prettyTag = rawTag.split('_').join(' ');
+          
+          if(used_tags.indexOf(rawTag) > -1) {
           } else if(tag_record.parent != null) {
             if(used_tags.indexOf(tag_record.parent) > -1) {
               $("[data-tag="+tag_record.parent+"]")
-                .append("<li>"+
-                	(tag_record.tag).split('_').join(' ')+"<ul data-tag='"+tag_record.tag+
-                	"'></ul></li>");
-              used_tags.push(tag_record.tag);
+                .append("<li>" + prettyTag + "<ul data-tag='" + 
+                  rawTag + "'></ul></li>");
+              tagSelector.append($("<option></option>")
+                .attr("value",rawTag)
+                .text(prettyTag)); 
+              
+              used_tags.push(rawTag);
+            } else if(tags.indexOf(tag_record.parent == -1)) {
+              console.log("ERROR: no parent tag for: ");
+              console.log(tag_record);
+              used_tags.push(rawTag);
             }
           } else {
-            $(".tagTree").append("<li>"+tag_record.tag+"<ul data-tag='"+tag_record.tag+"'></ul></li>");
-            used_tags.push(tag_record.tag);
+            tagTree.append("<li>"+prettyTag+"<ul data-tag='"+rawTag+"'></ul></li>");
+            
+              tagSelector.append($("<option></option>")
+                .attr("value",rawTag)
+                .text(prettyTag)); 
+            used_tags.push(rawTag);
           }
         });
       }
       if(!treeLoaded) {
-        $(".tagTree").bonsai({
+        tagTree.bonsai({
           createInputs: 'checkbox',
           addSelectAll: 'true'
         });
       } else {
-        $(".tagTree").bonsai('update');
+        tagTree.bonsai('update');
       }
       treeLoaded = true;
     }
@@ -51,6 +73,18 @@ function loadTags() {
 }
 
 
+// dialog manipulation functions
+
+function openAddTagDialog() {
+  dialog = $('#addTagDialog');
+  dialog.find('input[name="tag"]').val('');
+  dialog.find('input[name="description"]').val('TODO / unimplemented');
+  dialog.css("display", "block");
+}
+function closeAddTagDialog() {
+  dialog = $('#addTagDialog');
+  dialog.hide();
+}
 
 
 // initialization
@@ -160,10 +194,6 @@ $(function() {
       }); 
     });
     
-    $('.addTag').click( function () { 
-      $("#addTagDialog").css("display", "block");
-    });
-    
     $('.deleteTags').click( function () { 
       selectedTags = $("input[type=checkbox]:checked").siblings('ul')
         .map(function(){return $(this).attr("data-tag");}).get();
@@ -185,6 +215,7 @@ $(function() {
                     type: 'DELETE',
                     success: function(data) {
                       loadTags();
+                      mainTable.ajax.reload();
                     }
                   });
                   $(this).dialog("close");
@@ -200,11 +231,29 @@ $(function() {
       }   
     });
     
-    $('.addTagDialogSubmit').click( function () {  
-      alert("TODO: validate and add tag");
-    });
     
-    $('.addTagDialogCancel').click( function () { 
-      $('#addTagDialog').hide();
+    $('.addTag').click(function() {openAddTagDialog();}); // TODO: figure out why the closure is needed instead of just openAddTagDialog
+    $('.addTagDialogCancel').click(function() {closeAddTagDialog();});
+    $('.addTagDialogSubmit').click( function () { 
+      // fetch tag name in lower case with spaces replaced by _'s
+      var name = $('#addTagDialog input[name="tag"]').val().toLowerCase().split(' ').join('_');
+      var description = $('#addTagDialog input[name="description"]').val();
+      var parent = $('#addTagDialog select[name="parent"] option:selected').val();
+      if(name.search("^[a-z0-9_]+$") == -1) {
+        alert("tag names must be non-empty and consist only of numbers, letters, and spaces");
+      } else {
+      	var urlCommand = 'api/createtag/'+name + 
+            (parent != '' ? '/'+parent : '');
+        console.log(urlCommand);
+        $.ajax({
+          url: urlCommand,
+          type: 'PUT',
+          success: function(data) {
+            console.log(data);
+            loadTags();
+          }
+        });
+        closeAddTagDialog();
+      }
     });
 });

@@ -237,18 +237,22 @@ function disassociate_tags($args) {
 
 function create_tag($args) {
 	global $db;
+	if(count($args) == 0 || count($args) > 2)
+		err_bad_input_format("expected 1-2 arguments in URL (tag, parent tag)");
 	
-	if(count($args) == 0 || count($args) > 3)
-		err_bad_input_format("expected 1-3 arguments in URL (tag, parent tag, description)");
+	$tag = $args[0];
+	$parent = count($args) == 2 ? $args[1] : null;
 	
-	if(is_tag($args[0]))
+	if(is_tag($tag))
 		err_bad_input_data('tag', $tag, 'already exists');
+	
+	if($parent != null && !is_tag($parent))
+		err_bad_input_data('parent', $parent, "doesn't exist");
 	
 	// TODO: validate tag format (a-z or _ only)
 	
-	$db->exec("INSERT INTO tag_info VALUES (".$args[0].",".
-		(count($args) > 1 ? "'".$args[1]."'" : "NULL").",".
-		(count($args) > 2 ? "'".$args[2]."'" : "NULL").")");
+	$db->exec("INSERT INTO tag_info VALUES ('".$tag."',".
+		(count($args) > 1 ? "'".$parent."'" : "NULL").",NULL)");
 }
 
 
@@ -265,12 +269,19 @@ function delete_tags($args) {
 	}
 	
 	// delete tags
-	foreach($args as $tag) {	
-		// TODO: start transaction
-		// TODO: update all tagged pdfs to have parent tag (or null)
-		// TODO: update all child tag to have this tag's parent (or null)
+	foreach($args as $tag) {
+		$parent = $db->querySingle("SELECT parent FROM tag_info WHERE tag='$tag'");
+		$db->exec("BEGIN TRANSACTION");	
+		if($parent) {
+		  $db->exec("UPDATE tags SET tag = '$parent' WHERE tag = '$tag'");
+		  $db->exec("UPDATE tag_info SET parent = '$parent' WHERE parent = '$tag'");
+		} else {
+		  $db->exec("DELETE FROM tags WHERE tag = '$tag'");
+		  $db->exec("UPDATE tag_info SET parent = NULL WHERE parent = '$tag'");
+		}
+		
 		$db->exec("DELETE FROM tag_info WHERE tag='$tag'");
-		// TODO: commit
+		$db->exec("COMMIT TRANSACTION");	
 	}
 	
 }
