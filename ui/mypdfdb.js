@@ -1,6 +1,14 @@
 var selectedRows = [];
 var mainTable = null;
 
+function styleTags(tags) {
+  return (''+tags).split(",").map(
+    function(tag){ 
+      return '<div class="tag">'+tag.split('_').join(' ')+'</div>'; 
+  }).join("");
+}
+
+
 function mypdfdbRowWriter(rowIndex, record, columns, cellWriter) {
   var tr = '';
 
@@ -45,7 +53,7 @@ function loadTags() {
             if(used_tags.indexOf(tag_record.parent) > -1) {
               $("[data-tag="+tag_record.parent+"]")
                 .append("<li>"+
-                	tag_record.tag+"<ul data-tag='"+tag_record.tag+
+                	(tag_record.tag).split('_').join(' ')+"<ul data-tag='"+tag_record.tag+
                 	"'></ul></li>");
               used_tags.push(tag_record.tag);
             }
@@ -87,11 +95,14 @@ $(function() {
             { "data": "recipient" }
         ],
         "columnDefs": [
+            { "visible": false,  "targets": [ 0 ] },
             {
-                "render": function ( data, type, row ) {
-                    return ' ('+ row['id']+')';
+                "render": function ( data, type, row ) { // tags
+                    // render spaces, add spaces after each tag in display
+                    if(''+row['tags'] == '') return '';
+                    return styleTags(row['tags']); 
                 },
-                "targets": 6
+                "targets": 1
             },
             {
                 "render": function ( data, type, row ) {
@@ -99,7 +110,12 @@ $(function() {
                 },
                 "targets": 2
             },
-            { "visible": false,  "targets": [ 0 ] }
+            {
+                "render": function ( data, type, row ) {
+                    return ' ('+ row['id']+')';
+                },
+                "targets": 6
+            }
         ],
         "select": true
     } );

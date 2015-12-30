@@ -9,10 +9,10 @@
 <script src="https://cdn.datatables.net/select/1.1.0/js/dataTables.select.min.js"></script>
 <script src="mypdfdb.js"></script>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"></link>
-<link rel="stylesheet" href="mypdfdb.css"></link
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css"></link>
 <link rel="stylesheet" href="jquery-bonsai/jquery.bonsai.css"></link>
 <link rel="stylesheet" href="https://cdn.datatables.net/select/1.1.0/css/select.dataTables.min.css"></link>
+<link rel="stylesheet" href="mypdfdb.css"></link>
 <title>MyPDF DB</title>
 </head>
 
@@ -47,23 +47,25 @@
 	<a class="editTag button">edit</a>
 	<a class="deleteTags button">delete</a>
 </div>
-
-<table id="pdfInfoTableContainer" class="display" cellspacing="0" width="100%">
-	<thead>
-		<th>id</th>
-		<th>tags</th>
-		<th>title</th>
-		<th>date</th>
-		<th>pages</th>
-		<th>origin</th>
-		<th>recipient</th>
-		<th>view</th>
-	</thead>
-</table>
-<a class="searchWithTags button">show records with selected tags</a>
-<a class="associateTags button">tag selected records</a>
-<a class="disassociateTags button">untag selected records</a>
-<a class="unselectAll button">unselect all records</a>
+<div class="queryview">
+	<table id="pdfInfoTableContainer" class="display">
+		<thead>
+			<th>id</th>
+			<th>tags</th>
+			<th>title</th>
+			<th>date</th>
+			<th>pages</th>
+			<th>origin</th>
+			<th>recipient</th>
+		</thead>
+	</table>
+</div>
+<div class="controlbar">
+	<a class="searchWithTags button">show records with selected tags</a>
+	<a class="associateTags button">tag selected records</a>
+	<a class="disassociateTags button">untag selected records</a>
+	<a class="unselectAll button">unselect all records</a>
+</div>
 </body>
 
 </html>

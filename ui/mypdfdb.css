@@ -1,4 +1,4 @@
-.button {
+.button, .optionsbar a {
    border-top: 1px solid #631b16;
    background: #e31009;
    background: -webkit-gradient(linear, left top, left bottom, from(#d94d0d), to(#e31009));
@@ -7,6 +7,7 @@
    background: -ms-linear-gradient(top, #d94d0d, #e31009);
    background: -o-linear-gradient(top, #d94d0d, #e31009);
    padding: 5px 10px;
+   margin: 150px 5px;
    -webkit-border-radius: 8px;
    -moz-border-radius: 8px;
    border-radius: 8px;
@@ -16,16 +17,15 @@
    text-shadow: rgba(0,0,0,.4) 0 1px 0;
    color: white;
    font-size: 14px;
-   font-family: Georgia, serif;
    text-decoration: none;
    vertical-align: middle;
 }
-.button:hover {
+.button:hover, .optionsbar a:hover {
    border-top-color: #28597a;
    background: #28597a;
    color: #ccc;
 }
-.button:active {
+.button:active, .optionsbar a:active {
    border-top-color: #1b435e;
    background: #1b435e;
 }
@@ -37,3 +37,33 @@
 .dialog {
   display: none;
 }
+
+.queryview {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.optionsbar {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.controlbar {
+  clear: both;
+}
+
+
+.tag, .tagTree label {  
+  background-color: rgb(226, 136, 80);
+  color: rgb(255, 255, 255);
+  padding-bottom: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  margin-bottom: 2px;
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 2px;
+  text-align: left;
+}
+
