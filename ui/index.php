@@ -42,7 +42,8 @@
 
 <div class="optionsbar">
 	<ul class="tagTree">
-	</ul>
+	</ul>	
+	<a class="searchWithTags button">search</a>
 	<a class="addTag button">add</a>
 	<a class="editTag button">edit</a>
 	<a class="deleteTags button">delete</a>
@@ -61,10 +62,14 @@
 	</table>
 </div>
 <div class="controlbar">
-	<a class="searchWithTags button">show records with selected tags</a>
-	<a class="associateTags button">tag selected records</a>
-	<a class="disassociateTags button">untag selected records</a>
-	<a class="unselectAll button">unselect all records</a>
+	<a class="showAllPDFs button">show all</a>
+	<a class="associateTags button">tag</a>
+	<a class="disassociateTags button">untag</a>
+	<a class="editPDF button">edit</a>
+	<a class="mergePDFs button">merge</a>
+	<a class="deletePDF button">delete</a>
+	<a class="viewPDF button">view</a>
+	<a class="downloadPDF button">download</a>
 </div>
 </body>
 

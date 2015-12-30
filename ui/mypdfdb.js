@@ -1,6 +1,8 @@
 var selectedRows = [];
 var mainTable = null;
 
+// general helpers
+
 function styleTags(tags) {
   return (''+tags).split(",").map(
     function(tag){ 
@@ -9,35 +11,7 @@ function styleTags(tags) {
 }
 
 
-function mypdfdbRowWriter(rowIndex, record, columns, cellWriter) {
-  var tr = '';
-
-  // grab the record's attribute for each column
-  for (var i = 0, len = columns.length; i < len; i++) {
-    tr += cellWriter(columns[i], record);
-  }
-  var selected = '';
-  if(selectedRows.indexOf(record.id) > -1) {
-    selected = ' class="selectedRow" ';
-  }
-  return '<tr onClick="selectRow('+record.id+')" data-id="'+record.id+'"'+selected+'>' + tr + '</tr>';
-};
-
-function selectRow(id) {
-  var tr = $("[data-id="+id+"]");alert(selectedRows);
-  if(selectedRows.indexOf(id) == -1) {
-    selectedRows.push(id); 
-    tr.addClass('selectedRow');
-  }
-}
-
-function unselectRow(event) {
-  var tr = $(event.target.closest('tr'));
-  if(selectedRows.indexOf(tr.attr('data-id')) == -1) {
-    selectedRows.push(tr.attr('data-id'));
-    tr.addClass('selectedRow');
-  }
-}
+// bonsai tree stuff for tag tree
 
 var treeLoaded = false;
 function loadTags() {
@@ -76,13 +50,14 @@ function loadTags() {
   });
 }
 
-function defaultSort(a, b, attr, direction) {
-  return (direction > 0 ? 1 : -1)(a.id-b.id);
-};
 
 
 
+// initialization
 $(function() { 
+		
+    // init datatable
+    
     mainTable = $('#pdfInfoTableContainer').DataTable( {
         "ajax": 'api/search/',
         "columns": [
@@ -161,6 +136,14 @@ $(function() {
         }
       }); 
     });
+    
+    
+    // init tag tree
+
+    loadTags();
+    
+    
+    // button listeners
 
     $('.disassociateTags').click( function () { 
       selectedIds = mainTable.rows( { selected: true } ).ids()
@@ -214,10 +197,9 @@ $(function() {
                 $(this).remove();
               }
             });
-     
-      }
-           
-  });
+      }   
+    });
+    
     $('.addTagDialogSubmit').click( function () {  
       alert("TODO: validate and add tag");
     });
@@ -225,6 +207,4 @@ $(function() {
     $('.addTagDialogCancel').click( function () { 
       $('#addTagDialog').hide();
     });
-    
-    loadTags();
 });
