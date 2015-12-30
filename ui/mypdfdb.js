@@ -256,4 +256,36 @@ $(function() {
         closeAddTagDialog();
       }
     });
+    
+    
+    $('.viewPDF').click(function() {
+      selectedIds = mainTable.rows( { selected: true } ).ids()
+        .map(function(row){return row.substring(4);});
+      if(selectedIds.length == 0) {
+        alert("you must have a pdf in the table selected");
+        return;
+      } else if(selectedIds.length > 1) {
+        alert("you must have exactly one pdf in the table selected");
+        return;
+      }
+      
+      alert("TODO: not implemented -- open iframe view of pdf: " + selectedIds[0]);
+      
+    });
+    
+    $('.downloadPDF').click(function() {
+      selectedIds = mainTable.rows( { selected: true } ).ids()
+        .map(function(row){return row.substring(4);});
+      if(selectedIds.length == 0) {
+        alert("you must have a pdf in the table selected");
+        return;
+      } else if(selectedIds.length > 1) {
+        alert("you must have exactly one pdf in the table selected");
+        return;
+      }
+      
+      window.open('api/pdf/'+selectedIds[0],'_blank');
+      
+    });
+    
 });
