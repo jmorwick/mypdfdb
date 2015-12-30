@@ -31,6 +31,7 @@ function unselectRow(event) {
   }
 }
 
+var treeLoaded = false;
 function loadTags() {
   $.ajax({
     url: 'api/tags',
@@ -54,10 +55,15 @@ function loadTags() {
           }
         });
       }
-      $(".tagTree").bonsai({
-        createInputs: 'checkbox',
-        addSelectAll: 'true'
-      });
+      if(!treeLoaded) {
+        $(".tagTree").bonsai({
+          createInputs: 'checkbox',
+          addSelectAll: 'true'
+        });
+      } else {
+        $(".tagTree").bonsai('update');
+      }
+      treeLoaded = true;
     }
   });
 }
@@ -162,31 +168,40 @@ $(function() {
     $('.deleteTags').click( function () { 
       selectedTags = $("input[type=checkbox]:checked").siblings('ul')
         .map(function(){return $(this).attr("data-tag");}).get();
-        $('<div></div>').appendTo('body')
-    .html('Are you sure you want to delete the tags: '+selectedTags+'? ' + 
-          'This will also alter any records using this tag and cannot be (easily) undone.')
-    .dialog({
-    modal: true,
-    title: 'remove tag?',
-    zIndex: 1000000,
-    autoOpen: true,
-    width: 'auto',
-    resizable: false,
-    buttons: {
-        Yes: function () {
-            alert("TODO: delete record");
-            $(this).dialog("close");
-        },
-        Cancel: function () {
-            $(this).dialog("close");
-        }
-    },
-    close: function (event, ui) {
-        $(this).remove();
-    }
-});
-    });
-    
+      if(selectedTags.length > 0) {
+          $('<div></div>').appendTo('body')
+            .html('Are you sure you want to delete the tags: '+selectedTags+'? ' + 
+              'This will also alter any records using this tag and cannot be (easily) undone.')
+            .dialog({
+              modal: true,
+              title: 'remove tag?',
+              zIndex: 1000000,
+              autoOpen: true,
+              width: 'auto',
+              resizable: false,
+              buttons: {
+                Yes: function () {
+                  $.ajax({
+                    url: 'api/deletetags/'+selectedTags.join('/'),
+                    type: 'DELETE',
+                    success: function(data) {
+                      loadTags();
+                    }
+                  });
+                  $(this).dialog("close");
+                },
+                Cancel: function () {
+                  $(this).dialog("close");
+                }
+              },
+              close: function (event, ui) {
+                $(this).remove();
+              }
+            });
+     
+      }
+           
+  });
     $('.addTagDialogSubmit').click( function () {  
       alert("TODO: validate and add tag");
     });

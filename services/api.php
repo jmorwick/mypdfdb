@@ -75,8 +75,8 @@ switch($method) {
 		}
 	case 'DELETE':
 		switch($endpoint) {
-			case 'deletetag':
-				delete_tag($args);
+			case 'deletetags':
+				delete_tags($args);
 				exit();
 			default: err_no_such_service($endpoint);
 		}
@@ -269,7 +269,7 @@ function delete_tags($args) {
 		// TODO: start transaction
 		// TODO: update all tagged pdfs to have parent tag (or null)
 		// TODO: update all child tag to have this tag's parent (or null)
-		// TODO: delete tag
+		$db->exec("DELETE FROM tag_info WHERE tag='$tag'");
 		// TODO: commit
 	}
 	
