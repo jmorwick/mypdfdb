@@ -30,6 +30,19 @@
   <a class="addTagDialogCancel button">cancel</a>
 </dialog>
 
+<dialog id="updatePdfDialog" title="Update PDF">
+  <label>Title:</label>
+  <input name="title" type="text">
+  <label>Date:</label>
+  <input name="date" type="text">
+  <label>Origin:</label>
+  <input name="origin" type="text">
+  <label>Recipient:</label>
+  <input name="recipient" type="text">
+  <a class="updatePdfDialogSubmit button">update</a>
+  <a class="updatePdfDialogCancel button">cancel</a>
+</dialog>
+
 <header>
 	<h1>myPDF DB</h1>
 </header>

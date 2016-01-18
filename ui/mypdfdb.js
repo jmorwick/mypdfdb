@@ -87,6 +87,16 @@ function closeAddTagDialog() {
 }
 
 
+function openUpdatePdfDialog() {
+  dialog = $('#updatePdfDialog');
+  dialog.css("display", "block");
+}
+function closeUpdatePdfDialog() {
+  dialog = $('#updatePdfDialog');
+  dialog.hide();
+}
+
+
 // initialization
 $(function() { 
 		
@@ -254,6 +264,34 @@ $(function() {
           }
         });
         closeAddTagDialog();
+      }
+    });
+    $('.editPDF').click(function() {openUpdatePdfDialog();}); // TODO: figure out why the closure is needed instead of just openAddTagDialog
+    $('.updatePdfDialogCancel').click(function() {closeUpdatePdfDialog();});
+    $('.updatePdfDialogSubmit').click( function () { 
+      selectedIds = mainTable.rows( { selected: true } ).ids()
+        .map(function(row){return row.substring(4);});
+      var title = $('#updatePdfDialog input[name="title"]').val();
+      var date = $('#updatePdfDialog input[name="date"]').val();
+      var origin = $('#updatePdfDialog input[name="origin"]').val();
+      var recipient = $('#updatePdfDialog input[name="recipient"]').val();
+      if(selectedIds.length == 0) {
+        alert("you must have a pdf in the table selected");
+      } else {
+        $.ajax({
+          url: 'api/updatepdf/'+selectedIds.join('/'),
+          data: { 
+          	  'date': date, 
+          	  'origin': origin, 
+          	  'recipient': recipient, 
+          },
+          type: 'POST',
+          success: function(data) {
+            console.log(data);
+            mainTable.ajax.reload();
+          }
+        });
+        closeUpdatePdfDialog();
       }
     });
     

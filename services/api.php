@@ -37,7 +37,6 @@ $db = new SQLite3($data_dir.'/.mypdfdb');
 $args = explode('/', rtrim($_GET['request'], '/'));
 $endpoint = array_shift($args);
 unset($_GET['request']);
-$extra_args = $_GET;
 $method = $_SERVER['REQUEST_METHOD'];
 
 // TODO: clean input arguments
@@ -58,6 +57,9 @@ switch($method) {
 		}
 	case 'POST':
 		switch($endpoint) {
+			case 'updatepdf':
+				update_pdf($args, $_POST);
+				exit();
 			default: err_no_such_service($endpoint);
 		}
 	case 'PUT':
@@ -178,7 +180,27 @@ function retrieve_pdf() {
 	header('Content-Type: application/pdf');
 	header("Content-Disposition:attachment;filename='$filename'");
 	readfile($data_dir.'/'.$filename);
-	exit();
+}
+
+function update_pdf($args, $fields) {
+	global $db, $data_dir;
+	
+	if(count($args) == 0)
+		err_bad_input_format("expected at least one argument in URL");
+	
+	$details = get_pdf_details($args[0]);
+	if(!$details)
+		err_bad_input_data('file_id', $args[0], 'not a valid pdf id');
+	foreach($args as $id) {
+	$fields_sql = array();	
+		foreach($fields as $field => $value) {
+			if(!array_key_exists($field, $details) || in_array($field , array('path', 'md5', 'pages', 'id')))
+				err_bad_input_data($field, '', 'not a valid field');
+			$fields_sql[] = "`".addslashes($field)."` = '".addslashes($value)."'";
+		} 
+		$db->exec("UPDATE files SET " . implode($fields_sql, ',') . " WHERE id = $id");
+	}
+	
 }
 
 function retrieve_tags() {
