@@ -176,9 +176,10 @@ function retrieve_pdf() {
 	
 	$filename = $details['path'];
 	if(!$filename) err_bad_input_data('file_id', $args[0], "pdf file missing from database");
-	
+	$downloadfilename = ($details['title'] != null && strlen($details['title']) > 0) ? 
+		$details['title'] . ".pdf" : $filename;
 	header('Content-Type: application/pdf');
-	header("Content-Disposition:attachment;filename='$filename'");
+	header("Content-Disposition:attachment;filename='$downloadfilename'");
 	readfile($data_dir.'/'.$filename);
 }
 

@@ -93,7 +93,7 @@ function openUpdatePdfDialog() {
   var origin=null;
   var recipient=null;
   mainTable.rows( { selected: true } ).data().each(function(row) {
-    if(title == null) title = row.title;
+    if(title == null) title = row.title == null ? row.path : row.title;
     else if(title != row.title) title = '';
     if(date == null) date = row.date;
     else if(date != row.date) date = '';
@@ -143,7 +143,7 @@ $(function() {
             },
             {
                 "render": function ( data, type, row ) {
-                    return row['title'] == null ? row['path'] : row['title'];
+                    return row['title'] == null ? "<div class='defaultValue'>"+row['path']+"</div>" : row['title'];
                 },
                 "targets": 2
             }
@@ -294,6 +294,7 @@ $(function() {
           url: 'api/updatepdf/'+selectedIds.join('/'),
           data: { 
           	  'date': date, 
+          	  'title': title, 
           	  'origin': origin, 
           	  'recipient': recipient, 
           },

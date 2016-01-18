@@ -20,6 +20,7 @@ CREATE TABLE `full_text` (
 CREATE TABLE "files" (
 	`id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	`path`	TEXT UNIQUE,
+	`title`	TEXT,
 	`md5`	INTEGER,
 	`date`	TEXT,
 	`pages`	INTEGER,
