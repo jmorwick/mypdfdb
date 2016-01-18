@@ -34,7 +34,7 @@
   <label>Title:</label>
   <input name="title" type="text">
   <label>Date:</label>
-  <input name="date" type="text">
+  <input name="date" type="date">
   <label>Origin:</label>
   <input name="origin" type="text">
   <label>Recipient:</label>
