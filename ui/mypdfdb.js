@@ -128,12 +128,6 @@ $(function() {
                     return row['title'] == null ? row['path'] : row['title'];
                 },
                 "targets": 2
-            },
-            {
-                "render": function ( data, type, row ) {
-                    return ' ('+ row['id']+')';
-                },
-                "targets": 6
             }
         ],
         "select": true
