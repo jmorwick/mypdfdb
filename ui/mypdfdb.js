@@ -88,7 +88,25 @@ function closeAddTagDialog() {
 
 
 function openUpdatePdfDialog() {
+  var title=null;
+  var date=null;
+  var origin=null;
+  var recipient=null;
+  mainTable.rows( { selected: true } ).data().each(function(row) {
+    if(title == null) title = row.title;
+    else if(title != row.title) title = '';
+    if(date == null) date = row.date;
+    else if(date != row.date) date = '';
+    if(origin == null) origin = row.origin;
+    else if(origin != row.origin) origin = '';
+    if(recipient == null) recipient = row.recipient;
+    else if(recipient != row.recipient) recipient = '';
+  });
   dialog = $('#updatePdfDialog');
+  dialog.find('input[name="title"]').val(title);
+  dialog.find('input[name="date"]').val(date);
+  dialog.find('input[name="origin"]').val(origin);
+  dialog.find('input[name="recipient"]').val(recipient);
   dialog.css("display", "block");
 }
 function closeUpdatePdfDialog() {
