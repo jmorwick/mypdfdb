@@ -16,7 +16,7 @@ connection = sqlite3.connect(datadir + '/.mypdfdb')
 
 for root, dirs, files in os.walk(datadir):
 	for filename in files:
-		if(re.search("\.pdf$", filename)):
+		if(re.search("\.(pdf|PDF)$", filename)):
 			fullpath = root + "/" + filename
 			relativepath = fullpath[len(datadir)+1:]
 			pdfHash = md5(fullpath)
