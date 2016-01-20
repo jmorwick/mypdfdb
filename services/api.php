@@ -167,8 +167,8 @@ function search_db($args) {
 function retrieve_pdf() {
 	global $data_dir, $args;
 	
-	if(count($args) != 1)
-		err_bad_input_format("expected one argument in URL");
+	if(count($args) < 1 || count($args) > 2)
+		err_bad_input_format("expected one or two arguments in URL");
 	
 	$details = get_pdf_details($args[0]);
 	if(!$details)
@@ -179,7 +179,9 @@ function retrieve_pdf() {
 	$downloadfilename = ($details['title'] != null && strlen($details['title']) > 0) ? 
 		$details['title'] . ".pdf" : $filename;
 	header('Content-Type: application/pdf');
-	header("Content-Disposition:attachment;filename='$downloadfilename'");
+	header("Content-Disposition:".
+		(count($args) == 2 ? 'inline' : 'attachment').
+		";filename='$downloadfilename'");
 	readfile($data_dir.'/'.$filename);
 }
 

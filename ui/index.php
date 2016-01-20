@@ -6,6 +6,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
 <script src="jquery-bonsai/jquery.bonsai.js"></script>
+<script src="pdf.js/pdf.js"></script>
 <script src="https://cdn.datatables.net/select/1.1.0/js/dataTables.select.min.js"></script>
 <script src="mypdfdb.js"></script>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"></link>
@@ -41,6 +42,21 @@
   <input name="recipient" type="text">
   <a class="updatePdfDialogSubmit button">update</a>
   <a class="updatePdfDialogCancel button">cancel</a>
+</dialog>
+
+<dialog id="viewPDFDialog" title="View PDF">
+
+  <div>
+    <a class="viewPDFPrev button">Previous</a>
+    <a class="viewPDFNext button">Next</a>
+    <a class="viewPDFClose button">Close</a>
+    &nbsp; &nbsp;
+    <span>Page: <span class="viewPDFPageNum"></span> / <span class="viewPDFPageCount"></span></span>
+  </div>
+
+  <div>
+    <canvas id="viewPDFCanvas" style="border:1px solid black"></canvas>
+  </div>
 </dialog>
 
 <header>
