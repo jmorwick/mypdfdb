@@ -356,7 +356,7 @@ $(function() {
       }   
     });
     
-    $('.deletePDF').click( function () { 
+    $('.deletePDFs').click( function () { 
       selectedIds = mainTable.rows( { selected: true } ).ids()
         .map(function(row){return row.substring(4);});
       selectedNames = mainTable.rows({ selected: true } ).data()
@@ -379,6 +379,49 @@ $(function() {
                   $.ajax({
                     url: 'api/deletepdfs/'+selectedIds.join('/'),
                     type: 'DELETE',
+                    success: function(data) {
+                      loadTags();
+                      mainTable.ajax.reload();
+                    }
+                  });
+                  $(this).dialog("close");
+                },
+                Cancel: function () {
+                  $(this).dialog("close");
+                }
+              },
+              close: function (event, ui) {
+                $(this).remove();
+              }
+            });
+      }   
+    });
+    
+    
+    
+    $('.mergePDFs').click( function () { 
+      selectedIds = mainTable.rows( { selected: true } ).ids()
+        .map(function(row){return row.substring(4);});
+      selectedNames = mainTable.rows({ selected: true } ).data()
+        .map(function(row){return row.title == null ? row.path : row.title;});
+      if(selectedIds.length > 0) {
+          $('<div></div>').appendTo('body')
+            .html('Are you sure you want to merge the PDFs' + 
+              (selectedIds.length > 1 ? 's' : '') + 
+              ': "'+selectedNames.join('", "')+'"? ' + 
+              'This cannot be undone.')
+            .dialog({
+              modal: true,
+              title: 'merge PDFs?',
+              zIndex: 1000000,
+              autoOpen: true,
+              width: 'auto',
+              resizable: false,
+              buttons: {
+                Yes: function () {
+                  $.ajax({
+                    url: 'api/mergepdfs/'+selectedIds.join('/'),
+                    type: 'POST',
                     success: function(data) {
                       loadTags();
                       mainTable.ajax.reload();

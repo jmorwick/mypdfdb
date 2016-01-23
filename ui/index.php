@@ -93,7 +93,7 @@
 	<a class="disassociateTags button">untag</a>
 	<a class="editPDF button">edit</a>
 	<a class="mergePDFs button">merge</a>
-	<a class="deletePDF button">delete</a>
+	<a class="deletePDFs button">delete</a>
 	<a class="viewPDF button">view</a>
 	<a class="downloadPDF button">download</a>
 </div>
