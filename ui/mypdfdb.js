@@ -356,6 +356,47 @@ $(function() {
       }   
     });
     
+    $('.deletePDF').click( function () { 
+      selectedIds = mainTable.rows( { selected: true } ).ids()
+        .map(function(row){return row.substring(4);});
+      selectedNames = mainTable.rows({ selected: true } ).data()
+        .map(function(row){return row.title == null ? row.path : row.title;});
+      if(selectedIds.length > 0) {
+          $('<div></div>').appendTo('body')
+            .html('Are you sure you want to delete the PDF' + 
+              (selectedIds.length > 1 ? 's' : '') + 
+              ': "'+selectedNames.join('", "')+'"? ' + 
+              'This cannot be undone.')
+            .dialog({
+              modal: true,
+              title: 'delete PDFs?',
+              zIndex: 1000000,
+              autoOpen: true,
+              width: 'auto',
+              resizable: false,
+              buttons: {
+                Yes: function () {
+                  $.ajax({
+                    url: 'api/deletepdfs/'+selectedIds.join('/'),
+                    type: 'DELETE',
+                    success: function(data) {
+                      loadTags();
+                      mainTable.ajax.reload();
+                    }
+                  });
+                  $(this).dialog("close");
+                },
+                Cancel: function () {
+                  $(this).dialog("close");
+                }
+              },
+              close: function (event, ui) {
+                $(this).remove();
+              }
+            });
+      }   
+    });
+    
     
     $('.addTag').click(function() {openAddTagDialog();}); // TODO: figure out why the closure is needed instead of just openAddTagDialog
     $('.addTagDialogCancel').click(function() {closeAddTagDialog();});

@@ -80,6 +80,9 @@ switch($method) {
 			case 'deletetags':
 				delete_tags($args);
 				exit();
+			case 'deletepdfs':
+				delete_pdfs($args);
+				exit();
 			default: err_no_such_service($endpoint);
 		}
 	default: err_no_such_service($endpoint);
@@ -309,6 +312,30 @@ function delete_tags($args) {
 		$db->exec("COMMIT TRANSACTION");	
 	}
 	
+}
+
+
+function delete_pdfs($args) {
+	global $db, $data_dir;
+	
+	if(count($args) == 0)
+		err_bad_input_format("expected at least 1 argument in URL (one or more tags)");
+	
+	// validate pdf arguments
+	foreach($args as $pdf_id) 
+	  if(!get_pdf_details($pdf_id)) 
+	    err_bad_input_data('pdfid', $pdf_id, 'not a valid pdf id');		
+	
+	// delete pdfs
+	$db->exec("BEGIN TRANSACTION");	
+	foreach($args as $pdf_id) {
+		$pdf = get_pdf_details($pdf_id);
+		unlink($data_dir.'/'.$pdf['path']);
+		$db->exec("DELETE FROM tags WHERE file_id='$pdf_id'");
+		$db->exec("DELETE FROM files WHERE id='$pdf_id'");
+	}
+	$db->exec("COMMIT TRANSACTION");	
+
 }
 
 ?>

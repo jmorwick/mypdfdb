@@ -27,8 +27,8 @@
   <select>
   <label>Description:</label>
   <input name="description" type="text">
-  <a class="addTagDialogSubmit button">add tag</a>
   <a class="addTagDialogCancel button">cancel</a>
+  <a class="addTagDialogSubmit button">add tag</a>
 </dialog>
 
 <dialog id="updatePdfDialog" title="Update PDF">
@@ -40,8 +40,8 @@
   <input name="origin" type="text">
   <label>Recipient:</label>
   <input name="recipient" type="text">
-  <a class="updatePdfDialogSubmit button">update</a>
   <a class="updatePdfDialogCancel button">cancel</a>
+  <a class="updatePdfDialogSubmit button">update</a>
 </dialog>
 
 <dialog id="viewPDFDialog" title="View PDF">
