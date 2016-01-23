@@ -384,9 +384,9 @@ function merge_pdfs($args) { // TODO: this entire function should be gaurded by 
     	  $new_path = substr($new_path, 0, -(4 + strlen("".($i-1))))."$i.pdf";
     	}
     	if(file_exists("/usr/bin/pdftk")) $merge_cmd = "/usr/bin/pdftk";
-    	else $merge_cmd = "/usr/local/bin/pdftk ";
+    	else $merge_cmd = "/usr/local/bin/pdftk";
     	foreach($paths as $path) {
-    	  $merge_cmd .= escapeshellarg($data_dir."/".$path)." ";
+    	  $merge_cmd .= " ".escapeshellarg($data_dir."/".$path)." ";
     	}
     	$merge_cmd .= " cat output ".escapeshellarg($data_dir."/".$new_path);
     	error_log($merge_cmd);
