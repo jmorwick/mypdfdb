@@ -383,8 +383,8 @@ function merge_pdfs($args) { // TODO: this entire function should be gaurded by 
     	  $i++;
     	  $new_path = substr($new_path, 0, -(4 + strlen("".($i-1))))."$i.pdf";
     	}
-
-    	$merge_cmd = "/usr/local/bin/pdftk ";
+    	if(file_exists("/usr/bin/pdftk")) $merge_cmd = "/usr/bin/pdftk";
+    	else $merge_cmd = "/usr/local/bin/pdftk ";
     	foreach($paths as $path) {
     	  $merge_cmd .= escapeshellarg($data_dir."/".$path)." ";
     	}
@@ -394,7 +394,7 @@ function merge_pdfs($args) { // TODO: this entire function should be gaurded by 
     	error_log("merging files: $merge_cmd  --> $res");
     	foreach($attributes as $k => $v) error_log(" $k => $v");
     	foreach($tags as $v) error_log(" tag: $v");
-    	$md5 = trim(shell_exec("md5 < ".escapeshellarg($data_dir."/".$new_path)));
+    	$md5 = md5_file($data_dir."/".$new_path);
     	if(!$md5) err_internal("could not merge files");
     	$sql="INSERT INTO files VALUES (NULL, '$new_path'".
     		', '.($attributes['title'] ? "'".addslashes($attributes['title'])."'":'NULL').
