@@ -179,7 +179,7 @@ function closeViewPDFDialog() {
 }
 
 function openAddTagDialog() {
-  dialog = $('#viewPDFDialog');
+  dialog = $('#addTagDialog');
   dialog.find('input[name="tag"]').val('');
   dialog.find('input[name="description"]').val('TODO / unimplemented');
   dialog.css("display", "block");
