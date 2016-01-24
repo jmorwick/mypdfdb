@@ -34,22 +34,35 @@
   background: #ff0000;
 }
 
-.dialog {
+dialog {
+  position: fixed;
+  top: 10%;
+  left: 10%
+  width: 80%;
+  height: 80%;
+  border: 16px solid black;
+  background-color: white;
+  z-index: 500000;
+  overflow: auto;
   display: none;
 }
 
 .queryview {
+    width: 75%;
     display: inline-block;
     vertical-align: top;
 }
 
 .optionsbar {
+    width: 15%;
     display: inline-block;
     vertical-align: top;
 }
 
 .controlbar {
-  clear: both;
+    width: 9%;
+    display: inline-block;
+    vertical-align: top;
 }
 
 
