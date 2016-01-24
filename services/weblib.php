@@ -191,70 +191,10 @@ function service_delete_pdfs($args) {
 }
 
 
-function service_merge_pdfs($args) { // TODO: this entire function should be gaurded by some sort of mutex
-	global $db, $data_dir;
+function service_merge_pdfs($args) { 
+	if(count($args) < 2)
+		err_bad_input_format("expected at least 2 arguments in URL (one or more pdf ids)");
 	
-	if(count($args) == 0)
-		err_bad_input_format("expected at least 1 argument in URL (one or more pdf ids)");
-	
-	// validate pdf arguments
-	$paths = array();
-	$attributes = array();
-	$tags = array();
-	$total_pages = 0;
-	foreach($args as $pdf_id) {
-	  $pdf = get_pdf_info($pdf_id);
-	  if(!$pdf) 
-	    err_bad_input_data('pdfid', $pdf_id, 'not a valid pdf id');	
-          $paths[] = $pdf['path'];
-          if(!isset($attributes['path']) && $pdf['path']) 
-            $attributes['path'] = $pdf['path'];
-          if(!isset($attributes['title']) && $pdf['title']) 
-            $attributes['title'] = $pdf['title'];
-          if(!isset($attributes['pages']) && $pdf['pages']) 
-            $pages += $pdf['pages'];
-          if(!isset($attributes['date']) && $pdf['date']) 
-            $attributes['date'] = $pdf['date'];
-          if(!isset($attributes['origin']) && $pdf['origin']) 
-            $attributes['origin'] = $pdf['origin'];
-          if(!isset($attributes['recipient']) && $pdf['recipient']) 
-            $attributes['recipient'] = $pdf['recipient'];
-          $pdf = prepare_pdf_record($pdf);
-          $tags = array_unique(array_merge($tags, $pdf['tags']));
-    	}
-    	$i=1;
-    	$new_path = substr($attributes['path'], 0, -4)."$i.pdf";
-    	while(file_exists($data_dir."/".$new_path)) {
-    	  $i++;
-    	  $new_path = substr($new_path, 0, -(4 + strlen("".($i-1))))."$i.pdf";
-    	}
-    	if(file_exists("/usr/bin/pdftk")) $merge_cmd = "/usr/bin/pdftk";
-    	else $merge_cmd = "/usr/local/bin/pdftk";
-    	foreach($paths as $path) {
-    	  $merge_cmd .= " ".escapeshellarg($data_dir."/".$path)." ";
-    	}
-    	$merge_cmd .= " cat output ".escapeshellarg($data_dir."/".$new_path);
-    	error_log($merge_cmd);
-    	$res = shell_exec($merge_cmd);
-    	error_log("merging files: $merge_cmd  --> $res");
-    	foreach($attributes as $k => $v) error_log(" $k => $v");
-    	foreach($tags as $v) error_log(" tag: $v");
-    	$md5 = md5_file($data_dir."/".$new_path);
-    	if(!$md5) err_internal("could not merge files");
-    	$sql="INSERT INTO files VALUES (NULL, '$new_path'".
-    		', '.($attributes['title'] ? "'".addslashes($attributes['title'])."'":'NULL').
-    		', '.($md5 ? "'$md5'":'NULL').
-    		', '.($attributes['date'] ? "'".addslashes($attributes['date'])."'":'NULL').
-    		", ".$total_pages.
-    		', '.($attributes['origin'] ? "'".addslashes($attributes['origin'])."'":'NULL').
-    		', '.($attributes['recipient'] ? "'".addslashes($attributes['recipient'])."'":'NULL').
-    		")";
-    	$db->exec($sql);
-        $new_id = $db->lastInsertRowID();
-    	if(!$new_id) err_internal("could not insert merged file to db");
-        foreach($tags as $tag) {
-          $db->exec("INSERT INTO tags VALUES ($new_id, '$tag')");
-        }
-        service_delete_pdfs($args);
+	merge_pdfs($args);
 }
 
