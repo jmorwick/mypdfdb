@@ -16,11 +16,11 @@ function err_no_such_service($service) {
 }
 
 function err_bad_input_format($msg) {
-	fatal_error("404: malformed input to service: $msg", 404);
+	fatal_error("403: malformed input to service: $msg", 403);
 }
 
 function err_bad_input_data($field, $value, $msg) {
-	fatal_error("404: bad input value for service: '$field' can't have value '$value': $msg", 404);
+	fatal_error("403: bad input value for service: '$field' can't have value '$value': $msg", 403);
 }
 
 function err_internal($msg) {

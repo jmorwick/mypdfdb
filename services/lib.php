@@ -49,7 +49,7 @@ function create_tag($tag, $parent=null) {
 	// TODO: validate tag format (a-z or _ only)
 	
 	$db->exec("INSERT INTO tag_info VALUES ('".$tag."',".
-		(count($args) > 1 ? "'".$parent."'" : "NULL").",NULL)");
+		($parent ? "'$parent'" : "NULL").",NULL)");
 }
 
 function find_child_tags($tag) {
