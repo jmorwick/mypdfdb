@@ -254,11 +254,11 @@ function merge_pdf_files($paths) { // TODO: this entire function should be gaurd
 	if(count($paths) < 2)
 		err_bad_input_format("expected at least 2 file paths");
 	
-    	$i=1;
+    	$i=0;
     	$new_path = $paths[0];
     	while(file_exists($data_dir."/".$new_path)) {
     	  $i++;
-    	  $new_path = substr($new_path, 0, -(4 + strlen("".($i-1))))."$i.pdf";
+    	  $new_path = substr($new_path, 0, -(($i==1?3:4) + strlen("".($i-1))))."$i.pdf";
     	}
     	$merge_cmd = "gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=";
     	$merge_cmd .= escapeshellarg($data_dir."/".$new_path);
