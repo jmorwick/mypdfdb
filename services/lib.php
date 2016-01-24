@@ -87,7 +87,8 @@ function find_tags_for_pdf($pdf_id) {
 	return array_unique($tags);
 }
 
-function detele_tag($tag) {
+function delete_tag($tag) {
+	global $db;
 	if(!get_tag_info($tag)) 
 		err_bad_input_data('tag', $tag, "not a valid tag");		
 	
