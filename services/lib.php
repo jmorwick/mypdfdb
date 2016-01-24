@@ -205,7 +205,7 @@ function update_pdf_info($pdf_id, $fields) {
 
 function delete_pdf_file($filename) {
 	global $data_dir;
-	unlink($data_dir.'/'.$pdf['path']);
+	unlink($data_dir.'/'.$filename);
 	// TODO: check if dir pdf was in is empty and remove if it is
 }
 
@@ -213,7 +213,7 @@ function delete_pdf($pdf_id) {
 	global $db;
 	
 	$pdf = get_pdf_info($pdf_id);
-	if(!get_pdf_info($pdf)) 
+	if(!get_pdf_info($pdf_id)) 
 	    err_bad_input_data('pdfid', $pdf_id, 'not a valid pdf id');		
 	
 	$db->exec("BEGIN TRANSACTION");	
