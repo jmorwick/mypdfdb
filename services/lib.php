@@ -194,7 +194,6 @@ function update_pdf_info($pdf_id, $fields) {
 	if(!$pdf) err_bad_input_data('pdf_id', $pdf_id, 'not a valid pdf id');
 	
 	$fields_sql = array();	
-	print_r($fields);
 	foreach($fields as $field => $value) {
 		if(!array_key_exists($field, $pdf) || in_array($field , array('path', 'md5', 'pages', 'id')))
 			err_bad_input_data($field, $value, 'not a valid field');
