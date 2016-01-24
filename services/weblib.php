@@ -38,8 +38,8 @@ require_once("lib.php");
 function prepare_pdf_record($id) {
 	global $db;
 	$record = get_pdf_info($id);
-	$record['tags'] = find_tags_for_pdf($record['id']);
-	$record['DT_RowId'] = 'row_'.$record['id']; // needed for datatable plugin
+	$record['tags'] = find_tags_for_pdf($id);
+	$record['DT_RowId'] = "row_$id"; // needed for datatable plugin
 	return $record;
 }
 
@@ -119,7 +119,7 @@ function service_associate_tags($args) {
 	  if(!get_pdf_info($pdf)) 
 	    err_bad_input_data('pdfid', $pdf, 'not a valid pdf id');
     
-    	foreach($pdfs as $pdf) {
+    	foreach($pdfs as $pdf_id) {
     	  foreach($tags as $tag) {
     	    tag_pdf($pdf_id, $tag);
     	  }

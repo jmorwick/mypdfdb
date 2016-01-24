@@ -53,6 +53,7 @@ function create_tag($tag, $parent=null) {
 }
 
 function find_child_tags($tag) {
+	global $db;
 	$tag_queue = array($tag);
 	$tags = array();
 	while(count($tag_queue)) {
@@ -168,13 +169,14 @@ function tag_pdf($pdf_id, $tag) {
 	global $db;
 	$tag_info = get_tag_info($tag);
 	if(!$tag_info) err_bad_input_data('tag', $tag, "tag doesn't exist");
+	if(!get_pdf_info($pdf_id)) err_bad_input_data('pdf_id', $pdf_id, "pdf doesn't exist");
 	
 	$db->exec("BEGIN TRANSACTION");	
-	while($tag_info = get_tag_info($tag['parent'])) // dissassociate with any parent of this tag
-		$db->exec("DELETE FROM tags WHERE file_id = '$pdf' AND tag = '$tag'");
+	while($tag_info = get_tag_info($tag_info['parent'])) // dissassociate with any parent of this tag
+		$db->exec("DELETE FROM tags WHERE file_id = $pdf_id AND tag = '$tag'");
 	
-	if(!$db->querySingle("SELECT * FROM tags WHERE file_id = '$pdf' AND tag = '$tag'")) {
-		$db->exec("INSERT INTO tags VALUES ('$pdf', '$tag')");
+	if(!$db->querySingle("SELECT * FROM tags WHERE file_id = $pdf_id AND tag = '$tag'")) {
+		$db->exec("INSERT INTO tags VALUES ($pdf_id, '$tag')");
 	}
 	$db->exec("COMMIT TRANSACTION");	
 }
@@ -184,7 +186,7 @@ function untag_pdf($pdf_id, $tag) {
 	$tags = find_child_tags($tag);
 	$tags[] = $tag;
 	foreach($tags as $tag) {
-		$db->exec("DELETE FROM tags WHERE file_id = '$pdf' AND tag = '$tag'");
+		$db->exec("DELETE FROM tags WHERE file_id = '$pdf_id' AND tag = '$tag'");
 	}
 }
 
