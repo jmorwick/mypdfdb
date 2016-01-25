@@ -201,8 +201,8 @@ function add_pdf_to_db($file_path, $attributes) {
 	if(!file_exists($data_dir."/".$file_path))
 		err_bad_input_data('file_path', $file_path, "file doesn't exist");
 	
-    	$attributes['md5'] = get_md5_hash($new_path);    	
-    	if(!$attributes['md5']) err_internal("could not generate hash of file $new_path");
+    	$attributes['md5'] = get_md5_hash($file_path);    	
+    	if(!$attributes['md5']) err_internal("could not generate hash of file $file_path");
     	// TODO: find number of pages
     	$pages=0;
 	
