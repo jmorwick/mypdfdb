@@ -6,23 +6,23 @@
 
 // TODO: check for existance of error functions
 
-$data_dir = getenv('MYPDFDB_DATA_DIR');
+if(!$data_dir) $data_dir = getenv('MYPDFDB_DATA_DIR');
 if(!$data_dir) {
-  die("FATAL ERROR: data directory environment variable not set");
+  die("FATAL ERROR: data directory environment variable not set\n");
 } 
 
 if(!file_exists($data_dir) || !is_dir($data_dir)) {
-  die("FATAL ERROR: data directory '$data_dir' doesn't exist");
+  die("FATAL ERROR: data directory '$data_dir' doesn't exist\n");
 }
 
 if(!file_exists($data_dir.'/.mypdfdb')) {
-  die("FATAL ERROR: data directory '$data_dir' doesn't contain a .mypdfdb sqlite3 database file");
+  die("FATAL ERROR: data directory '$data_dir' doesn't contain a .mypdfdb sqlite3 database file\n");
 }
 
 $db = new SQLite3($data_dir.'/.mypdfdb');
 
 if(!$db) {
-  die("FATAL ERROR: data directory '$data_dir/.mypdfdb' is not a valid sqlite3 database file");
+  die("FATAL ERROR: data directory '$data_dir/.mypdfdb' is not a valid sqlite3 database file\n");
 }
 
 // TODO: check file permissions
@@ -122,6 +122,11 @@ function get_pdf_info($id) {
 	return false;
 }
 
+function get_pdf_id($path) {
+	global $db;
+	$path = addslashes($path);
+	return $db->querySingle("SELECT id FROM files WHERE path = '$path'");
+}
 
 function find_pdfs_with_no_tag() {
 	global $db;
@@ -185,13 +190,18 @@ function untag_pdf($pdf_id, $tag) {
 	}
 }
 
+function get_md5_hash($path) {
+	global $data_dir;
+	return md5_file($data_dir."/".$path); 
+}
+
 function add_pdf_to_db($file_path, $attributes) {
 	global $db, $data_dir;
 	
 	if(!file_exists($data_dir."/".$file_path))
 		err_bad_input_data('file_path', $file_path, "file doesn't exist");
 	
-    	$attributes['md5'] = md5_file($data_dir."/".$new_path);    	
+    	$attributes['md5'] = get_md5_hash($new_path);    	
     	if(!$attributes['md5']) err_internal("could not generate hash of file $new_path");
     	// TODO: find number of pages
     	$pages=0;
@@ -215,7 +225,7 @@ function update_pdf_info($pdf_id, $fields) {
 	
 	$fields_sql = array();	
 	foreach($fields as $field => $value) {
-		if(!array_key_exists($field, $pdf) || in_array($field , array('path', 'md5', 'pages', 'id')))
+		if(!array_key_exists($field, $pdf) || $field == 'id')
 			err_bad_input_data($field, $value, 'not a valid field');
 		$fields_sql[] = "`".addslashes($field)."` = ".($value ? "'".addslashes($value)."'" : "NULL");
 	} 
