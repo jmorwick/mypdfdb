@@ -149,19 +149,14 @@ function find_pdfs_with_tag($tag) {
 			$tag_queue[] = $row['tag'];
 		}
 	}
-	
-	if($tags) {
-		$queries = array();
-		foreach($tags as $tag) {
-			$queries[] = "SELECT files.id FROM files, tags WHERE tags.file_id = files.id AND tags.tag = '$tag'";
-		}
-		$res = $db->query(implode(" UNION " , $queries));
-	} else {
-		$res = $db->query("SELECT files.id FROM files");
-	}
+
 	$pdf_ids = array();
-	while($row = $res->fetchArray(SQLITE3_ASSOC))
-		$pdf_ids[] = $row['id'];
+	$clauses = array();
+	foreach($tags as $tag) 
+		$clauses[] = "tag = '$tag'";
+	$res = $db->query("SELECT file_id FROM tags WHERE " . implode(" OR ", $clauses));
+	while($row = $res->fetchArray(SQLITE3_ASSOC)) 
+		$pdf_ids[] = $row['file_id'];
 	return $pdf_ids;
 }
 
