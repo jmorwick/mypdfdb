@@ -69,6 +69,8 @@
 	<ul class="tagTree">
 	</ul>	
 	<a class="searchWithTags button">search</a>
+	<a class="associateTags button">tag</a>
+	<a class="disassociateTags button">untag</a>
 	<a class="addTag button">add</a>
 	<a class="editTag button">edit</a>
 	<a class="deleteTags button">delete</a>
@@ -88,9 +90,8 @@
 	</table>
 </div>
 <div class="controlbar">
-	<a class="showAllPDFs button">show all</a>
-	<a class="associateTags button">tag</a>
-	<a class="disassociateTags button">untag</a>
+	<a class="showAllPDFs button">all</a>
+	<a class="showDupes button">dupes</a>
 	<a class="editPDF button">edit</a>
 	<a class="mergePDFs button">merge</a>
 	<a class="deletePDFs button">delete</a>

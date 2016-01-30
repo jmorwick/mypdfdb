@@ -274,6 +274,16 @@ $(function() {
       mainTable.ajax.url('api/search/'+selectedTags.join('/'));
       mainTable.ajax.reload();
     });
+    
+    $('.showAllPDFs').click( function () { 
+      mainTable.ajax.url('api/all/');
+      mainTable.ajax.reload();
+    });
+    
+    $('.showDupes').click( function () { 
+      mainTable.ajax.url('api/dupes/');
+      mainTable.ajax.reload();
+    });
  
     $('.associateTags').click( function () { 
       selectedIds = mainTable.rows( { selected: true } ).ids()

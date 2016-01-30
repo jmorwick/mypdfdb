@@ -137,6 +137,24 @@ function find_pdfs_with_no_tag() {
 	return $pdf_ids;
 }
 
+function find_pdfs_with_dupes() {
+	global $db;
+	$res = $db->query("SELECT id FROM files AS f1 WHERE EXISTS (SELECT * FROM files AS f2 WHERE f1.id != f2.id AND f1.md5 == f2.md5)");
+	$pdf_ids = array();
+	while($row = $res->fetchArray(SQLITE3_ASSOC))
+		$pdf_ids[] = $row['id'];
+	return $pdf_ids;
+}
+
+function find_pdfs_all() {
+	global $db;
+	$res = $db->query("SELECT id FROM files");
+	$pdf_ids = array();
+	while($row = $res->fetchArray(SQLITE3_ASSOC))
+		$pdf_ids[] = $row['id'];
+	return $pdf_ids;
+}
+
 function find_pdfs_with_tag($tag) {
 	global $db;
 	

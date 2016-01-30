@@ -47,15 +47,19 @@ function prepare_pdf_record($id) {
 // servicing functions
 ////////////////////////////////////////////////////////////////////////////////
 
-function service_search_db($args) {	
+function service_search_db($args, $dupes) {	
 	$pdf_ids = array();
 	
 	if($args) foreach($args as $tag) {
 		if(!get_tag_info($tag)) 
 			err_bad_input_data('tag', $tag, "doesn't exist");
 		$pdf_ids = array_unique(array_merge($pdf_ids, find_pdfs_with_tag($tag)));
-	} else {
+	} else if($dupes) {
+		$pdf_ids = find_pdfs_with_dupes();
+	} else if(is_array($args)) {
 		$pdf_ids = find_pdfs_with_no_tag();
+	} else {
+		$pdf_ids = find_pdfs_all();
 	}
 	
 	$pdfs = array();
@@ -63,6 +67,8 @@ function service_search_db($args) {
 		$pdfs[] = prepare_pdf_record($pdf_id);
 	echo json_encode(array( 'data' => $pdfs));
 }
+
+
 
 function service_retrieve_pdf($args) {	
 	global $data_dir;

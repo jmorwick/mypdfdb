@@ -13,7 +13,13 @@ switch($method) {
 	case 'GET':
 		switch($endpoint) {
 			case 'search':
-				service_search_db($args);
+				service_search_db($args, false);
+				exit();
+			case 'dupes':
+				service_search_db($args, true);
+				exit();
+			case 'all':
+				service_search_db(false, false);
 				exit();
 			case 'pdf':
 				service_retrieve_pdf($args);
