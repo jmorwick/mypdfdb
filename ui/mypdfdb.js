@@ -115,7 +115,7 @@ function openUpdatePdfDialog(dialog) {
       pageNum = 1,
       pageRendering = false,
       pageNumPending = null,
-      scale = 0.8,
+      scale = 1.5,
       canvas = document.getElementById('viewPDFCanvas'),
       ctx = canvas.getContext('2d');
 
