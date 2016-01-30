@@ -300,8 +300,7 @@ function merge_pdfs($pdf_ids) { // TODO: this entire function should be gaurded 
             $attributes['origin'] = $pdf['origin'];
           if(!isset($attributes['recipient']) && $pdf['recipient']) 
             $attributes['recipient'] = $pdf['recipient'];
-          $pdf = prepare_pdf_record($pdf);
-          $tags = array_unique(array_merge($tags, $pdf['tags']));
+          $tags = array_unique(array_merge($tags, find_tags_for_pdf($pdf_id)));
     	}
     	
     	$new_path = merge_pdf_files($paths);
