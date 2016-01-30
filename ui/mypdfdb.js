@@ -217,6 +217,7 @@ $(function() {
             { "data": "tags" },
             { "data": "title" },
             { "data": "date" },
+            { "data": "md5" },
             { "data": "pages" },
             { "data": "origin" },
             { "data": "recipient" }
@@ -236,6 +237,12 @@ $(function() {
                     return row['title'] == null ? "<div class='defaultValue'>"+row['path']+"</div>" : row['title'];
                 },
                 "targets": 2
+            },
+            {
+                "render": function ( data, type, row ) {
+                    return row['md5'].substring(0,6);
+                },
+                "targets": 4
             }
         ],
         "select": true

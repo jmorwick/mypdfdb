@@ -80,6 +80,7 @@
 			<th>tags</th>
 			<th>title</th>
 			<th>date</th>
+			<th>md5</th>
 			<th>pages</th>
 			<th>origin</th>
 			<th>recipient</th>
