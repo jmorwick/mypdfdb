@@ -75,11 +75,41 @@ function loadTags() {
 
 // dialog manipulation functions
 
-function openViewPDFDialog() {
-  dialog = $('#viewPDFDialog');
+
+
+function openAddTagDialog(dialog) {
+  dialog.find('input[name="tag"]').val('');
+  dialog.find('input[name="description"]').val('TODO / unimplemented');
+  dialog.css("display", "block");
+}
+
+
+function openUpdatePdfDialog(dialog) {
+  var title=null;
+  var date=null;
+  var origin=null;
+  var recipient=null;
+  var id=null;
+  mainTable.rows( { selected: true } ).data().each(function(row) {
+    if(id == null) id = row.id;
+    if(title == null) title = row.title == null ? row.path : row.title;
+    else if(title != row.title) title = '';
+    if(date == null) date = row.date;
+    else if(date != row.date) date = '';
+    if(origin == null) origin = row.origin;
+    else if(origin != row.origin) origin = '';
+    if(recipient == null) recipient = row.recipient;
+    else if(recipient != row.recipient) recipient = '';
+  });
+  dialog.find('input[name="title"]').val(title);
+  dialog.find('input[name="date"]').val(date);
+  dialog.find('input[name="origin"]').val(origin);
+  dialog.find('input[name="recipient"]').val(recipient);
+  
+  
   // adapted from pdf.js example at: 
   
-  var url = 'api/pdf/'+selectedIds[0];
+  var url = 'api/pdf/'+id;
 
   var pdfDoc = null,
       pageNum = 1,
@@ -170,53 +200,10 @@ function openViewPDFDialog() {
     // Initial/first page rendering
     renderPage(pageNum);
   });
-  dialog.css("display", "block");
-  dialog.parent().append(dialog);
-}
-function closeViewPDFDialog() {
-  dialog = $('#viewPDFDialog');
-  dialog.hide();
-}
-
-function openAddTagDialog() {
-  dialog = $('#addTagDialog');
-  dialog.find('input[name="tag"]').val('');
-  dialog.find('input[name="description"]').val('TODO / unimplemented');
+  
+  
   dialog.css("display", "block");
 }
-function closeAddTagDialog() {
-  dialog = $('#addTagDialog');
-  dialog.hide();
-}
-
-
-function openUpdatePdfDialog() {
-  var title=null;
-  var date=null;
-  var origin=null;
-  var recipient=null;
-  mainTable.rows( { selected: true } ).data().each(function(row) {
-    if(title == null) title = row.title == null ? row.path : row.title;
-    else if(title != row.title) title = '';
-    if(date == null) date = row.date;
-    else if(date != row.date) date = '';
-    if(origin == null) origin = row.origin;
-    else if(origin != row.origin) origin = '';
-    if(recipient == null) recipient = row.recipient;
-    else if(recipient != row.recipient) recipient = '';
-  });
-  dialog = $('#updatePdfDialog');
-  dialog.find('input[name="title"]').val(title);
-  dialog.find('input[name="date"]').val(date);
-  dialog.find('input[name="origin"]').val(origin);
-  dialog.find('input[name="recipient"]').val(recipient);
-  dialog.css("display", "block");
-}
-function closeUpdatePdfDialog() {
-  dialog = $('#updatePdfDialog');
-  dialog.hide();
-}
-
 
 // initialization
 $(function() { 
@@ -441,8 +428,12 @@ $(function() {
     });
     
     
-    $('.addTag').click(function() {openAddTagDialog();}); // TODO: figure out why the closure is needed instead of just openAddTagDialog
-    $('.addTagDialogCancel').click(function() {closeAddTagDialog();});
+    $('.addTag').click(function() {
+      openAddTagDialog($('#addTagDialog'));
+    });
+    $('.addTagDialogCancel').click(function() {
+      $('#addTagDialog').hide();
+    });
     $('.addTagDialogSubmit').click( function () { 
       // fetch tag name in lower case with spaces replaced by _'s
       var name = $('#addTagDialog input[name="tag"]').val().toLowerCase().split(' ').join('_');
@@ -462,11 +453,15 @@ $(function() {
             loadTags();
           }
         });
-        closeAddTagDialog();
+        $('#addTagDialog').hide();
       }
     });
-    $('.editPDF').click(function() {openUpdatePdfDialog();}); // TODO: figure out why the closure is needed instead of just openAddTagDialog
-    $('.updatePdfDialogCancel').click(function() {closeUpdatePdfDialog();});
+    $('.editPDF').click(function() {
+      openUpdatePdfDialog($('#updatePdfDialog'));
+    }); 
+    $('.updatePdfDialogCancel').click(function() {
+      $('#updatePdfDialog').hide();
+    });
     $('.updatePdfDialogSubmit').click( function () { 
       selectedIds = mainTable.rows( { selected: true } ).ids()
         .map(function(row){return row.substring(4);});
@@ -491,29 +486,10 @@ $(function() {
             mainTable.ajax.reload();
           }
         });
-        closeUpdatePdfDialog();
+        $('#updatePdfDialog').hide();
       }
     });
     
-    
-    $('.viewPDF').click(function() {
-      selectedIds = mainTable.rows( { selected: true } ).ids()
-        .map(function(row){return row.substring(4);});
-      if(selectedIds.length == 0) {
-        alert("you must have a pdf in the table selected");
-        return;
-      } else if(selectedIds.length > 1) {
-        alert("you must have exactly one pdf in the table selected");
-        return;
-      }
-      
-      openViewPDFDialog();
-      console.log("TODO: not implemented -- open iframe view of pdf: " + selectedIds[0]);
-      
-    });
-    $('.viewPDFClose').click(function() {
-      closeViewPDFDialog();
-    });
     
     $('.downloadPDF').click(function() {
       selectedIds = mainTable.rows( { selected: true } ).ids()

@@ -40,16 +40,15 @@
   <input name="origin" type="text">
   <label>Recipient:</label>
   <input name="recipient" type="text">
-  <a class="updatePdfDialogCancel button">cancel</a>
-  <a class="updatePdfDialogSubmit button">update</a>
-</dialog>
-
-<dialog id="viewPDFDialog" title="View PDF">
-
+  
+  <div>
+    <a class="updatePdfDialogCancel button">cancel</a>
+    <a class="updatePdfDialogSubmit button">update</a>
+  </div>
+  
   <div>
     <a class="viewPDFPrev button">Previous</a>
     <a class="viewPDFNext button">Next</a>
-    <a class="viewPDFClose button">Close</a>
     &nbsp; &nbsp;
     <span>Page: <span class="viewPDFPageNum"></span> / <span class="viewPDFPageCount"></span></span>
   </div>
@@ -94,7 +93,6 @@
 	<a class="editPDF button">edit</a>
 	<a class="mergePDFs button">merge</a>
 	<a class="deletePDFs button">delete</a>
-	<a class="viewPDF button">view</a>
 	<a class="downloadPDF button">download</a>
 </div>
 </body>
