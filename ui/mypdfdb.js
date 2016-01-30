@@ -240,7 +240,7 @@ $(function() {
             },
             {
                 "render": function ( data, type, row ) {
-                    return row['md5'].substring(0,6);
+                    return row['md5'] != null ? row['md5'].substring(0,6) : null;
                 },
                 "targets": 4
             }
