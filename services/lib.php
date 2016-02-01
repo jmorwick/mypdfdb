@@ -109,6 +109,52 @@ function delete_tag($tag) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
+// file manipulation
+////////////////////////////////////////////////////////////////////////////////
+
+function get_full_path($path) {
+	global $data_dir;
+	return realpath($data_dir)."/".$path;
+}
+
+function canonicalize_path($path) {
+	global $data_dir;
+	$data_dir = realpath($data_dir);
+	$full_path = get_full_path($path);
+	return substr($full_path, strlen($data_dir)+1);
+}
+
+function get_md5_hash($path) {
+	return md5_file(get_full_path($path)); 
+}
+
+function delete_pdf_file($path) {
+	unlink(get_full_path($path));
+}
+
+function merge_pdf_files($paths) { 
+	global $data_dir;
+	if(count($paths) < 2)
+		err_bad_input_format("expected at least 2 file paths");
+	
+    	$i=0;
+    	$new_path = $paths[0];
+    	while(file_exists(get_full_path($new_path))) {
+    	  $i++;
+    	  $new_path = substr($new_path, 0, -(($i==1?3:4) + strlen("".($i-1))))."$i.pdf";
+    	}
+    	$merge_cmd = "gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=";
+    	$merge_cmd .= escapeshellarg(get_full_path($new_path));
+    	foreach($paths as $path) {
+    	  $merge_cmd .= " ".escapeshellarg(get_full_path($path))." ";
+    	}
+    	$res = `$merge_cmd`;
+    	if(!file_exists(get_full_path($new_path))) err_internal("could not create merged file: ".get_full_path($new_path));
+        foreach($paths as $path) delete_pdf_file($path);
+    	return canonicalize_path($new_path);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // pdf validation, manipulation, and retrieval functions
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -124,13 +170,13 @@ function get_pdf_info($id) {
 
 function get_pdf_id($path) {
 	global $db;
-	$path = addslashes($path);
+	$path = addslashes(canonicalize_path($path));
 	return $db->querySingle("SELECT id FROM files WHERE path = '$path'");
 }
 
 function find_pdfs_with_no_tag() {
 	global $db;
-	$res = $db->query("SELECT id FROM files WHERE NOT EXISTS (SELECT * FROM tags WHERE file_id = files.id)");
+	$res = $db->query("SELECT id FROM files WHERE path IS NOT NULL AND NOT EXISTS (SELECT * FROM tags WHERE file_id = files.id)");
 	$pdf_ids = array();
 	while($row = $res->fetchArray(SQLITE3_ASSOC))
 		$pdf_ids[] = $row['id'];
@@ -139,7 +185,7 @@ function find_pdfs_with_no_tag() {
 
 function find_pdfs_with_dupes() {
 	global $db;
-	$res = $db->query("SELECT id FROM files AS f1 WHERE EXISTS (SELECT * FROM files AS f2 WHERE f1.id != f2.id AND f1.md5 == f2.md5)");
+	$res = $db->query("SELECT id FROM files AS f1 WHERE path IS NOT NULL AND EXISTS (SELECT * FROM files AS f2 WHERE f1.id != f2.id AND f1.md5 == f2.md5)");
 	$pdf_ids = array();
 	while($row = $res->fetchArray(SQLITE3_ASSOC))
 		$pdf_ids[] = $row['id'];
@@ -148,7 +194,21 @@ function find_pdfs_with_dupes() {
 
 function find_pdfs_all() {
 	global $db;
-	$res = $db->query("SELECT id FROM files");
+	$res = $db->query("SELECT id FROM files WHERE path IS NOT NULL");
+	$pdf_ids = array();
+	while($row = $res->fetchArray(SQLITE3_ASSOC))
+		$pdf_ids[] = $row['id'];
+	return $pdf_ids;
+}
+
+function orphan_pdf($pdf_id) {
+	global $db;
+	$db->exec("UPDATE files SET path = NULL WHERE id = $pdf_id");
+}
+
+function find_orphaned_pdf_info() {
+	global $db;
+	$res = $db->query("SELECT id FROM files WHERE path IS NULL");
 	$pdf_ids = array();
 	while($row = $res->fetchArray(SQLITE3_ASSOC))
 		$pdf_ids[] = $row['id'];
@@ -208,23 +268,18 @@ function untag_pdf($pdf_id, $tag) {
 	}
 }
 
-function get_md5_hash($path) {
-	global $data_dir;
-	return md5_file($data_dir."/".$path); 
-}
-
-function add_pdf_to_db($file_path, $attributes) {
-	global $db, $data_dir;
+function add_pdf_to_db($path, $attributes) {
+	global $db;
+	$path = canonicalize_path($path);
+	if(!file_exists(get_full_path($path)))
+		err_bad_input_data('file_path', $path, "file doesn't exist");
 	
-	if(!file_exists($data_dir."/".$file_path))
-		err_bad_input_data('file_path', $file_path, "file doesn't exist");
-	
-    	$attributes['md5'] = get_md5_hash($file_path);    	
-    	if(!$attributes['md5']) err_internal("could not generate hash of file $file_path");
+    	$attributes['md5'] = get_md5_hash($path);    	
+    	if(!$attributes['md5']) err_internal("could not generate hash of file $path");
     	// TODO: find number of pages
     	$pages=0;
 	
-    	$sql="INSERT INTO files VALUES (NULL, '$file_path'".
+    	$sql="INSERT INTO files VALUES (NULL, '".addslashes($path)."'".
     		', '.($attributes['title'] ? "'".addslashes($attributes['title'])."'":'NULL').
     		', '.($attributes['md5'] ? "'".addslashes($attributes['md5'])."'":'NULL').
     		', '.($attributes['date'] ? "'".addslashes($attributes['date'])."'":'NULL').
@@ -251,56 +306,30 @@ function update_pdf_info($pdf_id, $fields) {
 	$db->exec("UPDATE files SET " . implode($fields_sql, ',') . " WHERE id = $pdf_id");
 }
 
-function delete_pdf_file($filename) {
-	global $data_dir;
-	unlink($data_dir.'/'.$filename);
-	// TODO: check if dir pdf was in is empty and remove if it is
-}
-
-function delete_pdf($pdf_id) {
+function delete_pdf_metadata($pdf_id) {
 	global $db;
 	
 	$pdf = get_pdf_info($pdf_id);
 	if(!get_pdf_info($pdf_id)) 
 	    err_bad_input_data('pdfid', $pdf_id, 'not a valid pdf id');		
 	
-	$db->exec("BEGIN TRANSACTION");	
 	$db->exec("DELETE FROM tags WHERE file_id='$pdf_id'");
 	$db->exec("DELETE FROM files WHERE id='$pdf_id'");
-	$db->exec("COMMIT TRANSACTION");	
+}
+
+
+function delete_pdf($pdf_id) {
+	$pdf = get_pdf_info($pdf_id);
+	if(!$pdf) err_bad_input_data('pdf_id', $pdf_id, "no such pdf id");
+	delete_pdf_metadata($pdf_id);
 	delete_pdf_file($pdf['path']);
 }
 
-
-function merge_pdf_files($paths) { // TODO: this entire function should be gaurded by some sort of mutex
-	global $data_dir;
-	if(count($paths) < 2)
-		err_bad_input_format("expected at least 2 file paths");
-	
-    	$i=0;
-    	$new_path = $paths[0];
-    	while(file_exists($data_dir."/".$new_path)) {
-    	  $i++;
-    	  $new_path = substr($new_path, 0, -(($i==1?3:4) + strlen("".($i-1))))."$i.pdf";
-    	}
-    	$merge_cmd = "gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dPDFSETTINGS=/prepress -sOutputFile=";
-    	$merge_cmd .= escapeshellarg($data_dir."/".$new_path);
-    	foreach($paths as $path) {
-    	  $merge_cmd .= " ".escapeshellarg($data_dir."/".$path)." ";
-    	}
-    	$res = `$merge_cmd`;
-    	return $new_path;
-
-}
-
-function merge_pdfs($pdf_ids) { // TODO: this entire function should be gaurded by some sort of mutex
-	global $data_dir;
-	
+function merge_pdf_metadata($pdf_ids, $path) { 
 	if(count($pdf_ids) < 2)
 		err_bad_input_format("expected at least 2 pdf ids");
 	
 	// validate pdf arguments and gather merged pdf attributes
-	$paths = array();
 	$attributes = array();
 	$tags = array();
 	$total_pages = 0;
@@ -308,7 +337,6 @@ function merge_pdfs($pdf_ids) { // TODO: this entire function should be gaurded 
 	  $pdf = get_pdf_info($pdf_id);
 	  if(!$pdf) 
 	    err_bad_input_data('pdfid', $pdf_id, 'not a valid pdf id');	
-          $paths[] = $pdf['path'];
           
           if(!isset($attributes['title']) && $pdf['title']) 
             $attributes['title'] = $pdf['title'];
@@ -321,11 +349,30 @@ function merge_pdfs($pdf_ids) { // TODO: this entire function should be gaurded 
           $tags = array_unique(array_merge($tags, find_tags_for_pdf($pdf_id)));
     	}
     	
-    	$new_path = merge_pdf_files($paths);
-    	$new_id = add_pdf_to_db($new_path, $attributes);
+        foreach($pdf_ids as $pdf_id) delete_pdf_metadata($pdf_id);
+    	$new_id = add_pdf_to_db($path, $attributes);
+        foreach($tags as $tag) tag_pdf($new_id, $tag);
+
     	if(!$new_id) err_internal("could not insert merged file to db");
     	
-        foreach($tags as $tag) tag_pdf($new_id, $tag);
-        foreach($pdf_ids as $pdf_id) delete_pdf($pdf_id);
+        return $new_id;
 }
 
+
+function merge_pdfs($pdf_ids) { // TODO: this entire function should be gaurded by some sort of mutex	
+	if(count($pdf_ids) < 2)
+		err_bad_input_format("expected at least 2 pdf ids");
+	
+	// validate pdf arguments and gather merged pdf attributes
+	$paths = array();
+	foreach($pdf_ids as $pdf_id) {
+	  $pdf = get_pdf_info($pdf_id);
+	  if(!$pdf) 
+	    err_bad_input_data('pdfid', $pdf_id, 'not a valid pdf id');	
+          $paths[] = $pdf['path'];
+    	}
+    	
+    	$new_path = merge_pdf_files($paths);
+    	$new_id = merge_pdf_metadata($pdf_ids, $new_path);
+    	if(!$new_id) err_internal("could not merge pdfs");
+}

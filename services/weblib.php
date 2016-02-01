@@ -200,7 +200,6 @@ function service_delete_pdfs($args) {
 function service_merge_pdfs($args) { 
 	if(count($args) < 2)
 		err_bad_input_format("expected at least 2 arguments in URL (one or more pdf ids)");
-	
 	merge_pdfs($args);
 }
 
