@@ -9,11 +9,11 @@
 <script src="pdf.js/pdf.js"></script>
 <script src="https://cdn.datatables.net/select/1.1.0/js/dataTables.select.min.js"></script>
 <script src="mypdfdb.js"></script>
-<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"></link>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css"></link>
-<link rel="stylesheet" href="jquery-bonsai/jquery.bonsai.css"></link>
-<link rel="stylesheet" href="https://cdn.datatables.net/select/1.1.0/css/select.dataTables.min.css"></link>
-<link rel="stylesheet" href="mypdfdb.css"></link>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"/>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" href="jquery-bonsai/jquery.bonsai.css"/>
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.1.0/css/select.dataTables.min.css"/>
+<link rel="stylesheet" href="mypdfdb.css"/>
 <title>MyPDF DB</title>
 </head>
 
@@ -76,7 +76,7 @@
 	<a class="deleteTags button">delete</a>
 </div>
 <div class="queryview">
-	<table id="pdfInfoTableContainer" class="display">
+	<table id="pdfInfoTableContainer" class="display" width="100%">
 		<thead>
 			<th>id</th>
 			<th>tags</th>

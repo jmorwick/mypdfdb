@@ -234,7 +234,20 @@ $(function() {
             },
             {
                 "render": function ( data, type, row ) {
-                    return row['title'] == null ? "<div class='defaultValue'>"+row['path']+"</div>" : row['title'];
+                    var title, defaultValue, maxLength;
+                    maxLength=40; // TODO - make this dynamic based on available space?
+                    title = row['title'];
+                    if(title == null) {
+                        title = row['path'];
+                        defaultValue = true;
+                    }
+                    tokens = [];
+                    for(i=0; i < title.length/maxLength; i++) {
+                        tokens.push(title.substr(i*maxLength, maxLength));
+                    }
+                    title = tokens.join("-<br>");
+                    title = defaultValue ? "<div class='defaultValue'>"+title+"</div>" : title;
+                    return title;
                 },
                 "targets": 2
             },
