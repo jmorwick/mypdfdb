@@ -120,7 +120,7 @@ function get_full_path($path) {
 function canonicalize_path($path) {
 	global $data_dir;
 	$data_dir = realpath($data_dir);
-	$full_path = get_full_path($path);
+	$full_path = realpath(get_full_path($path));
 	return substr($full_path, strlen($data_dir)+1);
 }
 
@@ -170,8 +170,17 @@ function get_pdf_info($id) {
 
 function get_pdf_id($path) {
 	global $db;
-	$path = addslashes(canonicalize_path($path));
+	$path = addslashes($path);
 	return $db->querySingle("SELECT id FROM files WHERE path = '$path'");
+}
+
+function get_pdf_ids_with_hash($md5) {
+	global $db;
+	$pdf_ids = array();
+	$res = $db->query("SELECT id FROM files WHERE md5 = '$md5'");
+	while($row = $res->fetchArray(SQLITE3_ASSOC))
+		$pdf_ids[] = $row['id'];
+	return $pdf_ids;
 }
 
 function find_pdfs_with_no_tag() {
